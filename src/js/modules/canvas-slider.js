@@ -23,6 +23,7 @@ class CanvasSlider {
                 on: () => {
                     this.canvas.addEventListener('mousedown', this.handleInteraction, false);
                     this.canvas.addEventListener('mouseover', this.handleInteraction, false);
+                    this.canvas.addEventListener('mousemove', this.handleInteraction, false);
                 },
                 off: () => {
                     this.canvas.removeEventListener('mousedown');
@@ -38,15 +39,33 @@ class CanvasSlider {
         this.setDimensions(options.dimensions);
     }
 
+
     buildSlider(images) {
         let context = this.canvas.getContext('2d'),
             imageModel = this.imageModel;
-        console.log(images);
-        Object.keys(images).map((image, index) => {
-            imageModel[index] = new Image();
-            imageModel[index].onload = () => { context.drawImage(imageModel[index], (this.canvas.width - imageModel[index].width) / 2, 0) };
-            imageModel[index].src = images[image].url;
-        });
+
+            Object.keys(images).forEach((image, index) => {
+
+                let
+                    offsetLeft = this.canvas.width * index,
+                    imgWidth = images[image].width,
+                    imgHeight = images[image].height,
+
+                    HorizontalAspectRatio = this.canvas.width / imgWidth,
+                    verticalAspectRatio =  this.canvas.height / imgHeight,
+
+                    aspectRatio = Math.min ( HorizontalAspectRatio, verticalAspectRatio ),
+
+                    middleX = ( this.canvas.width - imgWidth * aspectRatio ) / 2,
+                    middleY = ( this.canvas.height - imgHeight * aspectRatio ) / 2;
+
+                imageModel[index] = new Image();
+                imageModel[index].onload = () => {
+                    context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                };
+
+                imageModel[index].src = images[image].url;
+            });
 
         this.addInteractions();
     }
@@ -80,7 +99,7 @@ class CanvasSlider {
                     return response.json();
                 })
                 .then((data) => {
-                    this.serializeImages(data.DCdogs);
+                    this.buildSlider(data.DCdogs);
                 })
                 .catch((e) => {
                     console.error("Unfortunately your remote source failed", e);
@@ -92,7 +111,7 @@ class CanvasSlider {
     }
 
     handleInteraction(ev) {
-        console.log(ev);
+        console.log(ev.target)
     }
 
     setDirection(direction) {
@@ -105,19 +124,6 @@ class CanvasSlider {
             default:
                 this.direction = direction !== undefined ? direction: 'vertical';
                 break;
-        }
-    }
-
-    serializeImages(images) {
-        if (images) {
-            let imgs = {};
-            Object.keys(images).map((image) => {
-                imgs[image] = images[image];
-            });
-            this.buildSlider(imgs);
-
-        } else {
-            return false;
         }
     }
 }

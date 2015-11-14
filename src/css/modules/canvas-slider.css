@@ -1,6 +1,7 @@
 .canvas-slider {
     display: block;
-    background: darkcyan;
+    background: #e0e0e0;
+    outline:1px solid #d0d0d0;
     text-align: center;
     margin: 3em auto;
 }
