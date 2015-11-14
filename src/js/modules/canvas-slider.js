@@ -3,18 +3,67 @@
 class CanvasSlider {
 
     constructor(...options) {
-        this.buildSlider(...options);
-        this.images;
+        this.configureSlider(...options);
+        this.imageModel = {};
+        this.canvas;
+
+        this.interactionsMap = {
+            touch: {
+                on: () => {
+                    this.canvas.addEventListener('touchstart', this.handleInteraction, false);
+                    this.canvas.addEventListener('touchmove', this.handleInteraction, false);
+                },
+                off: () => {
+                    this.canvas.removeEventListener('touchstart');
+                    this.canvas.removeEventListener('touchmove');
+                }
+            },
+
+            mouse: {
+                on: () => {
+                    this.canvas.addEventListener('mousedown', this.handleInteraction, false);
+                    this.canvas.addEventListener('mouseover', this.handleInteraction, false);
+                },
+                off: () => {
+                    this.canvas.removeEventListener('mousedown');
+                    this.canvas.removeEventListener('mouseover');
+                }
+            }
+        }
     }
 
-    buildSlider(options) {
+    configureSlider(options) {
         this.setDirection(options.direction);
         this.fetchData(options.data);
-        this.setdimensions(options.dimensions);
+        this.setDimensions(options.dimensions);
     }
 
-    setdimensions(dimensions) {
-        let canvas = document.querySelector('.js-slider');
+    buildSlider(images) {
+        let context = this.canvas.getContext('2d'),
+            imageModel = this.imageModel;
+        console.log(images);
+        Object.keys(images).map((image, index) => {
+            imageModel[index] = new Image();
+            imageModel[index].onload = () => { context.drawImage(imageModel[index], (this.canvas.width - imageModel[index].width) / 2, 0) };
+            imageModel[index].src = images[image].url;
+        });
+
+        this.addInteractions();
+    }
+
+    addInteractions() {
+        this.interactionsMap.touch.on();
+        this.interactionsMap.mouse.on();
+    }
+
+    removeInteractions() {
+        this.interactionsMap.touch.off();
+        this.interactionsMap.mouse.off();
+    }
+
+    setDimensions(dimensions) {
+        this.canvas = document.querySelector('.js-slider');
+        let canvas = this.canvas;
         if (dimensions) {
             canvas.width = dimensions.width;
             canvas.height = dimensions.height;
@@ -31,10 +80,10 @@ class CanvasSlider {
                     return response.json();
                 })
                 .then((data) => {
-                    this.setImages(data.DCdogs);
+                    this.serializeImages(data.DCdogs);
                 })
-                .catch(() => {
-                    console.error("Unfortunately your remote source failed");
+                .catch((e) => {
+                    console.error("Unfortunately your remote source failed", e);
                 });
 
         } else {
@@ -42,8 +91,8 @@ class CanvasSlider {
         }
     }
 
-    handleInteraction() {
-        
+    handleInteraction(ev) {
+        console.log(ev);
     }
 
     setDirection(direction) {
@@ -59,19 +108,18 @@ class CanvasSlider {
         }
     }
 
-    setImages(images) {
+    serializeImages(images) {
         if (images) {
             let imgs = {};
             Object.keys(images).map((image) => {
-                return imgs[image] = images[image].url;
+                imgs[image] = images[image];
             });
+            this.buildSlider(imgs);
 
-            this.images = imgs;
         } else {
             return false;
         }
     }
-
 }
 
 // dummy data

@@ -1,6 +1,16 @@
 .canvas-slider {
     display: block;
-    background: red;
+    background: darkcyan;
     text-align: center;
     margin: 3em auto;
 }
+
+.canvas-slider:hover {
+    cursor: grab;
+}
+
+.canvas-slider:active {
+    cursor: grabbing;
+}
+
+
