@@ -1,1 +1,1 @@
-# canvas-slider
+#Canvas slider [![Build Status](https://travis-ci.org/code0wl/canvas-slider.svg)](https://travis-ci.org/code0wl/canvas-slider)

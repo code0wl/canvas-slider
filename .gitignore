@@ -1,0 +1,8 @@
+jsconfig.json
+node_modules
+.log
+.vscode
+npm-debug.log
+*.log
+.idea
+*.iml
