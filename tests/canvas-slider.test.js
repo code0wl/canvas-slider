@@ -2,7 +2,7 @@
 /* global describe */
 var assert = require('assert'),
     expect = require('chai').expect,
-    inHerito = require('./inherito');
+    inHerito = require('./src');
 
 describe('inHerito', function() {  
   it('should be an object', function() {
