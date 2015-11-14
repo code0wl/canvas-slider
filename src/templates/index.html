@@ -11,12 +11,6 @@
     <main>
         <section>
             <h1>Canvas Slider</h1>
-            <select class="demo-select">
-                <option>Horizontal</option>
-                <option>Vertical</option>
-                <option></option>
-                <option></option>
-            </select>
             <canvas class="js-slider canvas-slider"></canvas>
             <span>Drag to navigate through images</span>
         </section>
@@ -27,5 +21,20 @@
 
     <!-- build:js -->
     <!-- endbuild -->
+
+    <script>
+        // dummy data
+        document.addEventListener('DOMContentLoaded', function() {
+            var dcDogs = new CanvasSlider({
+                direction: 'horizontal',
+                data: '/data/dcdogs.json',
+                dimensions: {
+                    width: '640',
+                    height: '300'
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>

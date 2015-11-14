@@ -6,31 +6,25 @@ class CanvasSlider {
         this.configureSlider(...options);
         this.imageModel = {};
         this.canvas;
+        this.canvasWidth;
 
         this.interactionsMap = {
             touch: {
                 on: () => {
                     this.canvas.addEventListener('touchstart', this.handleInteraction, false);
                     this.canvas.addEventListener('touchmove', this.handleInteraction, false);
-                },
-                off: () => {
-                    this.canvas.removeEventListener('touchstart');
-                    this.canvas.removeEventListener('touchmove');
                 }
             },
 
             mouse: {
                 on: () => {
-                    this.canvas.addEventListener('mousedown', this.handleInteraction, false);
-                    this.canvas.addEventListener('mouseover', this.handleInteraction, false);
-                    this.canvas.addEventListener('mousemove', this.handleInteraction, false);
-                },
-                off: () => {
-                    this.canvas.removeEventListener('mousedown');
-                    this.canvas.removeEventListener('mouseover');
+                    this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this), false);
+                    this.canvas.addEventListener('mouseup', this.handleInteraction.bind(this), false);
+                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this), false);
                 }
             }
-        }
+        };
+
     }
 
     configureSlider(options) {
@@ -39,10 +33,10 @@ class CanvasSlider {
         this.setDimensions(options.dimensions);
     }
 
-
     buildSlider(images) {
         let context = this.canvas.getContext('2d'),
             imageModel = this.imageModel;
+            this.canvasWidth = this.canvas.width * Object.keys(images).length;
 
             Object.keys(images).forEach((image, index) => {
 
@@ -63,10 +57,8 @@ class CanvasSlider {
                 imageModel[index].onload = () => {
                     context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
                 };
-
                 imageModel[index].src = images[image].url;
             });
-
         this.addInteractions();
     }
 
@@ -110,8 +102,29 @@ class CanvasSlider {
         }
     }
 
+    onDragStart(ev) {
+        //last piece of the puzzle to ensure the user can drag an image
+
+    }
+
+    onDragEnd() {
+        clearInterval(this.renderer);
+    }
+
     handleInteraction(ev) {
-        console.log(ev.target)
+        if (ev.type === 'mousedown') {
+            this.canvas.addEventListener('mousemove', this.onDragStart.bind(this));
+            this.render();
+        } else {
+            this.canvas.removeEventListener('mousemove', this.onDragStart.bind(this));
+            this.onDragEnd();
+        }
+    }
+
+    render() {
+        this.renderer = setInterval(() => {
+            console.log('world running!')
+        }, 30);
     }
 
     setDirection(direction) {
@@ -127,16 +140,3 @@ class CanvasSlider {
         }
     }
 }
-
-// dummy data
-document.addEventListener('DOMContentLoaded', function() {
-    var dcDogs = new CanvasSlider({
-        direction: 'horizontal',
-        data: '/data/dcdogs.json',
-        dimensions: {
-            width: '640',
-            height: '300'
-        }
-    });
-});
-
