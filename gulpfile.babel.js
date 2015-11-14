@@ -35,7 +35,7 @@ gulp.task('css', () => {
 
 gulp.task('data', () => {
     return gulp.src('src/**/*.json')
-        .pipe(concat('amsterdam.json'))
+        .pipe(concat('dcdogs.json'))
         .pipe( gulp.dest('dist/data') );
 });
 
