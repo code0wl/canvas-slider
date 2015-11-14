@@ -33,6 +33,12 @@ gulp.task('css', () => {
         .pipe( gulp.dest('dist/css') );
 });
 
+gulp.task('data', () => {
+    return gulp.src('src/**/*.json')
+        .pipe(concat('amsterdam.json'))
+        .pipe( gulp.dest('dist/data') );
+});
+
 gulp.task('test', () => {
     return gulp
         .src(['test/**/*.js'])
@@ -60,7 +66,7 @@ gulp.task('default', ['js', 'test', 'dist', 'css']);
 
 gulp.task('js-watch', ['js', 'css', 'dist'], browserSync.reload);
 
-gulp.task('serve', ['js', 'css' ,'dist'], function () {
+gulp.task('serve', ['js', 'css', 'data' ,'dist'], function () {
     browserSync({
       server: {
           baseDir: "./dist"

@@ -2,20 +2,32 @@
 
 class CanvasSlider {
 
-    constructor (...options) {
-        this.options = Object.keys(...options);
+    constructor(...options) {
+        this.buildSlider(...options);
     }
 
-    createSlider() {
-
+    buildSlider(options) {
+        console.log(options);
+        this.setDirection(options.direction);
     }
 
-};
+    setDirection(direction) {
+        switch (direction) {
+            case 'horizontal':
+                this.direction = direction;
+                break;
 
-var test = new CanvasSlider({
-    poop: 'shit',
-    data: [],
+            case 'vertical':
+            default:
+                this.direction = direction;
+                break;
+        }
+    }
+}
 
+var amsterdamSlider = new CanvasSlider({
+    direction: 'horizontal',
+    data: []
 });
 
-console.log(test.options);
+console.log(amsterdamSlider);

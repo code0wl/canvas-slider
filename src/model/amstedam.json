@@ -1,5 +1,32 @@
 {
   "Amsterdam": {
-    "image":
+
+    "image1": {
+      "name": "joker dog",
+      "url": "https://chrislackiereview.files.wordpress.com/2013/10/dog-joker.jpg",
+      "height": "410",
+      "width": "575"
+    },
+
+    "image2": {
+      "name": "Robin dog",
+      "url": "http://ecx.images-amazon.com/images/I/41IsbFFs65L._SY355_.jpg",
+      "height": "278",
+      "width": "355"
+    },
+
+    "image3": {
+      "name": "bane dog",
+      "url": "http://www.tmiasuperhero.com/wp-content/uploads/2013/06/tmias_bane_dog.jpg",
+      "height": "480",
+      "width": "650"
+    },
+
+    "image4": {
+      "name": "batdog",
+      "url": "http://www.celebritydachshund.com/wp-content/uploads/2013/12/batdog-outfit-251x251.jpg",
+      "height": "251",
+      "width": "251"
+    }
   }
 }
