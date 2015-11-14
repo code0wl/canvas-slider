@@ -1,25 +1,21 @@
-const CanvasSlider = (function(factory, w, d){
+'use strict';
 
-    'use strict';
+class CanvasSlider {
 
-
-    let
-
-    createSlider = (...options) => {
-
-        console.log(...options);
-
-    };
-
-    return {
-      create: createSlider
+    constructor (...options) {
+        this.options = Object.keys(...options);
     }
 
-})(this, window, document);
+    createSlider() {
 
-CanvasSlider.create();
+    }
 
-//module.exports = {
-//  create: CanvasSlider.create
-//};
+};
 
+var test = new CanvasSlider({
+    poop: 'shit',
+    data: [],
+
+});
+
+console.log(test.options);

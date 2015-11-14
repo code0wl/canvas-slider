@@ -66,5 +66,5 @@ gulp.task('serve', ['js', 'css' ,'dist'], function () {
           baseDir: "./dist"
       }
     });
-    gulp.watch("src/", ['js-watch']);
+    gulp.watch("src/**", ['js-watch']);
 });
