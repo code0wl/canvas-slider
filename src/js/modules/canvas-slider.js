@@ -1,6 +1,6 @@
 'use strict';
 
-class CanvasSlider {
+const CanvasSlider = class {
 
     /**
      * New slider gets created with given props
@@ -9,32 +9,29 @@ class CanvasSlider {
      */
     constructor(...options) {
         this.relayConfig(...options);
+        this.touch = ('ontouchstart' in window);
         this.imageModel = {};
         this.interactionsMap = {
             touch: {
                 on: () => {
-                    this.canvas.addEventListener('touchstart', this.handleInteraction, false);
-                    this.canvas.addEventListener('touchmove', this.handleInteraction, false);
-                    this.canvas.addEventListener('touchend', this.handleInteraction, false);
+                    this.canvas.addEventListener('touchstart', this.handleInteraction.bind(this));
                 },
 
                 off: () => {
-                    this.canvas.removeEventListener('touchmove', this.handleInteraction, false);
-                    this.canvas.removeEventListener('touchend', this.handleInteraction, false);
-                    this.canvas.addEventListener('touchmove', this.handleDrag);
+                    this.canvas.removeEventListener('touchmove', this.handleDrag);
                 }
             },
 
             mouse: {
                 on: () => {
-                    this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this), false);
-                    this.canvas.addEventListener('mouseup', this.handleInteraction.bind(this), false);
-                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this), false);
+                    this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this));
+                    this.canvas.addEventListener('mouseup', this.handleInteraction.bind(this));
+                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this));
                 },
 
                 off: () => {
-                    this.canvas.removeEventListener('mouseleave', this.handleInteraction.bind(this), false);
-                    this.canvas.removeEventListener('mouseup', this.handleInteraction.bind(this), false);
+                    this.canvas.removeEventListener('mouseleave', this.handleInteraction.bind(this));
+                    this.canvas.removeEventListener('mouseup', this.handleInteraction.bind(this));
                     this.canvas.removeEventListener('mousemove', this.handleDrag);
                 }
             }
@@ -72,7 +69,6 @@ class CanvasSlider {
     buildSlider(images) {
         let imageModel = this.imageModel,
             imgs = Object.keys(images);
-
             this.maxScrollWidth = this.canvas.width * imgs.length;
             this.maxScrollHeight = this.canvas.height * imgs.length;
 
@@ -156,7 +152,11 @@ class CanvasSlider {
     }
 
     handleDrag(ev) {
-        console.log(ev);
+        if (this.touch) {
+            console.log('touch', ev);
+        } else {
+            console.log('mouse', ev);
+        }
     }
 
     /**
@@ -167,7 +167,7 @@ class CanvasSlider {
     handleInteraction(ev) {
         if (ev.type === 'mousedown') {
             this.canvas.addEventListener('mousemove', this.handleDrag);
-        } else if (ev.type === 'touchmove') {
+        } else if (ev.type === 'touchstart') {
             this.canvas.addEventListener('touchmove', this.handleDrag);
         } else {
             this.removeInteractions();
