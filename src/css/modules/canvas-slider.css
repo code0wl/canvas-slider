@@ -3,6 +3,7 @@
     background: #F0F0F0;
     outline:1px solid #d0d0d0;
     text-align: center;
+    position: relative;
     margin: 3em auto;
 }
 
@@ -13,5 +14,3 @@
 .canvas-slider:active {
     cursor: grabbing;
 }
-
-

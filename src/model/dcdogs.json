@@ -2,30 +2,30 @@
   "DCdogs": {
     "image1": {
       "name": "joker dog",
-      "url": "http://www.thinkcontra.com/wp-content/uploads/2015/02/funny-dogs.jpg",
-      "width": "1920",
-      "height": "1200"
+      "url": "http://placecreature.com/900/900",
+      "width": "900",
+      "height": "900"
     },
 
     "image2": {
       "name": "Robin dog",
-      "url": "http://ecx.images-amazon.com/images/I/41IsbFFs65L._AC_UL320_SR250,320_.jpg",
-      "width": "250",
-      "height": "320"
+      "url": "http://placecreature.com/800/1200",
+      "width": "800",
+      "height": "1200"
     },
 
     "image3": {
       "name": "laughing pooch",
-      "url": "http://picsportray.com/wp-content/uploads/2015/06/funny-dog.jpg",
-      "width": "550",
-      "height": "410"
+      "url": "http://placecreature.com/1024/768",
+      "width": "1024",
+      "height": "768"
     },
 
     "image4": {
       "name": "batdog",
-      "url": "http://www.celebritydachshund.com/wp-content/uploads/2013/12/batdog-outfit-251x251.jpg",
-      "width": "251",
-      "height": "251"
+      "url": "http://placecreature.com/700/300",
+      "width": "700",
+      "height": "300"
     }
   }
 }

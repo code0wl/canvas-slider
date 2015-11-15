@@ -40,8 +40,7 @@ const CanvasSlider = class {
 
     /**
      * configuration relay
-     * @param options
-     * @type Object
+     * @param {object} options
      */
     relayConfig(options) {
         this.setCanvas(options.element);
@@ -53,8 +52,7 @@ const CanvasSlider = class {
 
     /**
      * @Set element
-     * @param element
-     * @type String
+     * @param {string} element
      */
     setCanvas(element) {
         this.canvas = document.querySelector(element);
@@ -62,37 +60,42 @@ const CanvasSlider = class {
     }
 
     /**
-     * Builds slider with relayed info
-     * then binds events when complete
-     * @param images remote data {object}
+     * Builds slider with relayed info then binds events when complete
+     * @param {object} images remote data
      */
     buildSlider(images) {
         let imageModel = this.imageModel,
-            imgs = Object.keys(images);
-            this.maxScrollWidth = this.canvas.width * imgs.length;
-            this.maxScrollHeight = this.canvas.height * imgs.length;
+            imgs = Object.keys(images),
+            canvas = this.canvas;
+
+            this.maxScrollHorizontal = canvas.width * imgs.length;
+            this.maxScrollVertical = canvas.height * imgs.length;
 
             imgs.forEach((image, index) => {
                 let
-                    offsetLeft = this.canvas.width * index,
+                    offsetLeft = canvas.width * index,
                     imgWidth = images[image].width,
                     imgHeight = images[image].height,
 
-                    HorizontalAspectRatio = this.canvas.width / imgWidth,
-                    verticalAspectRatio =  this.canvas.height / imgHeight,
+                    HorizontalAspectRatio = canvas.width / imgWidth,
+                    verticalAspectRatio =  canvas.height / imgHeight,
 
                     aspectRatio = Math.min ( HorizontalAspectRatio, verticalAspectRatio ),
 
-                    middleX = ( this.canvas.width - imgWidth * aspectRatio ) / 2,
-                    middleY = ( this.canvas.height - imgHeight * aspectRatio ) / 2;
+                    middleX = ( canvas.width - imgWidth * aspectRatio ) / 2,
+                    middleY = ( canvas.height - imgHeight * aspectRatio ) / 2;
 
                 imageModel[index] = new Image();
-                imageModel[index].onload = () => {
-                    this.context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
-                };
+                imageModel[index].addEventListener('load', () => {
+                    if ( canvas.width >  imgWidth ) {
+                    //TODO: fix offset for next image inline
+                    this.context.drawImage(imageModel[index], canvas.width / 2 - imgWidth / 2, canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
+                    } else {
+                        this.context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                    }
+                });
                 imageModel[index].src = images[image].url;
             });
-
         this.addInteractions();
     }
 
@@ -114,8 +117,7 @@ const CanvasSlider = class {
 
     /**
      * Sets given dimensions given from user or is fullscreen by default
-     * @param dimensions
-     * @type Object
+     * @param {object} dimensions
      */
     setDimensions(dimensions) {
         let canvas = this.canvas;
@@ -130,8 +132,7 @@ const CanvasSlider = class {
 
     /**
      * Fetches remote images for usage
-     * @param remoteSource location url
-     * @type String
+     * @param {string} remoteSource location url
      */
     fetchData(remoteSource) {
         if (remoteSource) {
@@ -152,10 +153,11 @@ const CanvasSlider = class {
     }
 
     handleDrag(ev) {
+        
         if (this.touch) {
             console.log('touch', ev);
         } else {
-            console.log('mouse', ev);
+
         }
     }
 
@@ -176,8 +178,7 @@ const CanvasSlider = class {
 
     /**
      * Sets slider direction for the user
-     * @param direction
-     * @type String
+     * @param {string} direction
      */
     setDirection(direction) {
         switch (direction) {
