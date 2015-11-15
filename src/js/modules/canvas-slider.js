@@ -2,6 +2,11 @@
 
 class CanvasSlider {
 
+    /**
+     * New slider gets created with given props
+     * @param options
+     * @type Object
+     */
     constructor(...options) {
         this.relayConfig(...options);
         this.imageModel = {};
@@ -36,7 +41,6 @@ class CanvasSlider {
         };
     }
 
-
     /**
      * configuration relay
      * @param options
@@ -60,7 +64,8 @@ class CanvasSlider {
     }
 
     /**
-     * Builds slider with chosen configurations and binds events when complete
+     * Builds slider with relayed info
+     * then binds events when complete
      * @param images remote data
      * @type Object
      */
@@ -94,16 +99,27 @@ class CanvasSlider {
         this.addInteractions();
     }
 
+    /**
+     * adds drag interactions for both touch and mouse
+     */
     addInteractions() {
         this.interactionsMap.touch.on();
         this.interactionsMap.mouse.on();
     }
 
+    /**
+     * Removes drag interactions for both touch and mouse
+     */
     removeInteractions() {
         this.interactionsMap.touch.off();
         this.interactionsMap.mouse.off();
     }
 
+    /**
+     * Sets given dimensions given from user or is fullscreen by default
+     * @param dimensions
+     * @type Object
+     */
     setDimensions(dimensions) {
         let canvas = this.canvas;
         if (dimensions) {
@@ -115,6 +131,11 @@ class CanvasSlider {
         }
     }
 
+    /**
+     * Fetches remote images for usage
+     * @param remoteSource location url
+     * @type String
+     */
     fetchData(remoteSource) {
         if (remoteSource) {
             fetch(remoteSource)
@@ -129,46 +150,64 @@ class CanvasSlider {
                 });
 
         } else {
-            return false;
+            console.info('Setup some local images');
         }
     }
 
+
+
     onDragStart(ev) {
+        console.log(ev);
         console.log(this.canvas);
     }
 
+
+    /**
+     * Pristine slider
+     */
     onDragEnd() {
         this.removeInteractions();
         clearInterval(this.renderer);
     }
 
+    /**
+     * Handles all slider interactions
+     * @param event
+     * @type Object
+     */
     handleInteraction(ev) {
-        let dragStart = this.onDragStart.bind(this);
-
         if (ev.type === 'mousedown') {
-            this.canvas.addEventListener(window, 'mousemove', dragStart);
-            this.render();
+            this.render(ev);
         } else {
-            this.canvas.removeEventListener(window, 'mousemove', dragStart);
             this.onDragEnd();
         }
     }
 
-    render(time) {
+    /**
+     * Controls slider world fps
+     * @param time
+     * @type number
+     */
+    render(ev) {
         this.renderer = setInterval(() => {
-            console.log('world running!');
+            this.onDragStart(ev);
         }, 30);
     }
 
+    /**
+     * Sets slider direction for the user
+     * @param direction
+     * @type String
+     */
     setDirection(direction) {
         switch (direction) {
-            case 'horizontal':
-                this.direction = direction;
+            case 'vertical':
+                this.direction = direction !== undefined ? direction: 'vertical';
                 break;
 
-            case 'vertical':
+            case 'horizontal':
             default:
-                this.direction = direction !== undefined ? direction: 'vertical';
+                this.direction = direction;
                 break;
         }
     }
