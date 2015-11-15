@@ -3,16 +3,21 @@
 class CanvasSlider {
 
     constructor(...options) {
-        this.configureSlider(...options);
+        this.relayConfig(...options);
         this.imageModel = {};
-        this.canvas;
-        this.canvasWidth;
-
+        this.distance = 0;
+        this.lastRepaint = 0;
         this.interactionsMap = {
             touch: {
                 on: () => {
                     this.canvas.addEventListener('touchstart', this.handleInteraction, false);
                     this.canvas.addEventListener('touchmove', this.handleInteraction, false);
+                    this.canvas.addEventListener('touchend', this.handleInteraction, false);
+                },
+
+                off: () => {
+                    this.canvas.removeEventListener('touchmove', this.handleInteraction, false);
+                    this.canvas.removeEventListener('touchend', this.handleInteraction, false);
                 }
             },
 
@@ -21,22 +26,48 @@ class CanvasSlider {
                     this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this), false);
                     this.canvas.addEventListener('mouseup', this.handleInteraction.bind(this), false);
                     this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this), false);
+                },
+
+                off: () => {
+                    this.canvas.removeEventListener('mouseleave', this.handleInteraction.bind(this), false);
+                    this.canvas.removeEventListener('mouseup', this.handleInteraction.bind(this), false);
                 }
             }
         };
-
     }
 
-    configureSlider(options) {
+
+    /**
+     * configuration relay
+     * @param options
+     * @type Object
+     */
+    relayConfig(options) {
+        this.setCanvas(options.element);
         this.setDirection(options.direction);
         this.fetchData(options.data);
         this.setDimensions(options.dimensions);
+        this.speed = options.speed || 100;
     }
 
+    /**
+     * @Set element
+     * @param element
+     * @type String
+     */
+    setCanvas(element) {
+        this.canvas = document.querySelector(element);
+    }
+
+    /**
+     * Builds slider with chosen configurations and binds events when complete
+     * @param images remote data
+     * @type Object
+     */
     buildSlider(images) {
         let context = this.canvas.getContext('2d'),
             imageModel = this.imageModel;
-            this.canvasWidth = this.canvas.width * Object.keys(images).length;
+            //this.canvasWidth = this.canvas.width * Object.keys(images).length;
 
             Object.keys(images).forEach((image, index) => {
 
@@ -59,6 +90,7 @@ class CanvasSlider {
                 };
                 imageModel[index].src = images[image].url;
             });
+
         this.addInteractions();
     }
 
@@ -73,7 +105,6 @@ class CanvasSlider {
     }
 
     setDimensions(dimensions) {
-        this.canvas = document.querySelector('.js-slider');
         let canvas = this.canvas;
         if (dimensions) {
             canvas.width = dimensions.width;
@@ -103,27 +134,29 @@ class CanvasSlider {
     }
 
     onDragStart(ev) {
-        //last piece of the puzzle to ensure the user can drag an image
-
+        console.log(this.canvas);
     }
 
     onDragEnd() {
+        this.removeInteractions();
         clearInterval(this.renderer);
     }
 
     handleInteraction(ev) {
+        let dragStart = this.onDragStart.bind(this);
+
         if (ev.type === 'mousedown') {
-            this.canvas.addEventListener('mousemove', this.onDragStart.bind(this));
+            this.canvas.addEventListener(window, 'mousemove', dragStart);
             this.render();
         } else {
-            this.canvas.removeEventListener('mousemove', this.onDragStart.bind(this));
+            this.canvas.removeEventListener(window, 'mousemove', dragStart);
             this.onDragEnd();
         }
     }
 
-    render() {
+    render(time) {
         this.renderer = setInterval(() => {
-            console.log('world running!')
+            console.log('world running!');
         }, 30);
     }
 
