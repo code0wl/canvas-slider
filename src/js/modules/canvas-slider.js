@@ -10,8 +10,8 @@ class CanvasSlider {
     constructor(...options) {
         this.relayConfig(...options);
         this.imageModel = {};
-        this.distance = 0;
-        this.lastRepaint = 0;
+        this.originScrollX = 0;
+        this.originScrollY = 0;
         this.interactionsMap = {
             touch: {
                 on: () => {
@@ -36,6 +36,7 @@ class CanvasSlider {
                 off: () => {
                     this.canvas.removeEventListener('mouseleave', this.handleInteraction.bind(this), false);
                     this.canvas.removeEventListener('mouseup', this.handleInteraction.bind(this), false);
+                    this.canvas.removeEventListener('mousemove', this.handlDrag);
                 }
             }
         };
@@ -61,21 +62,22 @@ class CanvasSlider {
      */
     setCanvas(element) {
         this.canvas = document.querySelector(element);
+        this.context = this.canvas.getContext('2d');
     }
 
     /**
      * Builds slider with relayed info
      * then binds events when complete
-     * @param images remote data
-     * @type Object
+     * @param images remote data {object}
      */
     buildSlider(images) {
-        let context = this.canvas.getContext('2d'),
-            imageModel = this.imageModel;
-            //this.canvasWidth = this.canvas.width * Object.keys(images).length;
+        let imageModel = this.imageModel,
+            imgs = Object.keys(images);
 
-            Object.keys(images).forEach((image, index) => {
+            this.maxScrollWidth = this.canvas.width * imgs.length;
+            this.maxScrollHeight = this.canvas.height * imgs.length;
 
+            imgs.forEach((image, index) => {
                 let
                     offsetLeft = this.canvas.width * index,
                     imgWidth = images[image].width,
@@ -91,7 +93,7 @@ class CanvasSlider {
 
                 imageModel[index] = new Image();
                 imageModel[index].onload = () => {
-                    context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                    this.context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
                 };
                 imageModel[index].src = images[image].url;
             });
@@ -154,20 +156,8 @@ class CanvasSlider {
         }
     }
 
-
-
-    onDragStart(ev) {
+    handlDrag(ev) {
         console.log(ev);
-        console.log(this.canvas);
-    }
-
-
-    /**
-     * Pristine slider
-     */
-    onDragEnd() {
-        this.removeInteractions();
-        clearInterval(this.renderer);
     }
 
     /**
@@ -176,22 +166,12 @@ class CanvasSlider {
      * @type Object
      */
     handleInteraction(ev) {
-        if (ev.type === 'mousedown') {
-            this.render(ev);
+        if (ev.type === 'mousedown' || ev.type === 'touchmove') {
+            this.canvas.addEventListener('mousemove', this.handlDrag);
         } else {
-            this.onDragEnd();
-        }
-    }
 
-    /**
-     * Controls slider world fps
-     * @param time
-     * @type number
-     */
-    render(ev) {
-        this.renderer = setInterval(() => {
-            this.onDragStart(ev);
-        }, 30);
+            this.removeInteractions();
+        }
     }
 
     /**

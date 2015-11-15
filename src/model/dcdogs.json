@@ -1,18 +1,17 @@
 {
   "DCdogs": {
-
     "image1": {
       "name": "joker dog",
-      "url": "https://chrislackiereview.files.wordpress.com/2013/10/dog-joker.jpg",
-      "height": "410",
-      "width": "575"
+      "url": "http://www.thinkcontra.com/wp-content/uploads/2015/02/funny-dogs.jpg",
+      "width": "1920",
+      "height": "1200"
     },
 
     "image2": {
       "name": "Robin dog",
       "url": "http://ecx.images-amazon.com/images/I/41IsbFFs65L._AC_UL320_SR250,320_.jpg",
-      "height": "320",
-      "width": "250"
+      "width": "250",
+      "height": "320"
     },
 
     "image3": {
@@ -27,7 +26,6 @@
       "url": "http://www.celebritydachshund.com/wp-content/uploads/2013/12/batdog-outfit-251x251.jpg",
       "width": "251",
       "height": "251"
-
     }
   }
 }
