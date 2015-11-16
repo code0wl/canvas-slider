@@ -14,6 +14,7 @@ Use when speed is absolutely a necessity! Also works on mobile.
 - no libs, clean ES2015
 
 ###Feature pipeline
+- Webpack integration
 - Horizontal scroll
 - Vertical scroll
 - Both for possible screensave mode
@@ -33,5 +34,5 @@ Enter the following for a list of build tasks
     gulp help
     
 
-
-
+###Expected completion time
+19 - 11 - 2015
