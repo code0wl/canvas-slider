@@ -15,6 +15,19 @@ import cssnano from 'cssnano';
 
 gulp.task('help', taskListing);
 
+gulp.task('default', ['js', 'test', 'dist', 'css']);
+
+gulp.task('js-watch', ['js', 'css', 'dist'], browserSync.reload);
+
+gulp.task('serve', ['js', 'css', 'data' ,'dist'], function () {
+    browserSync({
+        server: {
+            baseDir: "./dist"
+        }
+    });
+    gulp.watch("src/**", ['js-watch']);
+});
+
 gulp.task('js', () => {
     return gulp.src('src/**/*.js')
         .pipe(sourcemaps.init())
@@ -39,6 +52,8 @@ gulp.task('data', () => {
         .pipe( gulp.dest('dist/data') );
 });
 
+
+// Todo: test coverage
 gulp.task('test', () => {
     return gulp
         .src(['test/**/*.js'])
@@ -60,17 +75,4 @@ gulp.task('dist', function() {
             'js': 'js/canvas.min.js'
         }))
         .pipe(gulp.dest('./dist'));
-});
-
-gulp.task('default', ['js', 'test', 'dist', 'css']);
-
-gulp.task('js-watch', ['js', 'css', 'dist'], browserSync.reload);
-
-gulp.task('serve', ['js', 'css', 'data' ,'dist'], function () {
-    browserSync({
-      server: {
-          baseDir: "./dist"
-      }
-    });
-    gulp.watch("src/**", ['js-watch']);
 });

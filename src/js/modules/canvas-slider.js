@@ -188,12 +188,9 @@ class CanvasSlider {
                 y: ev.clientY - bbox.top * (this.height / bbox.height)
             };
 
-
         if (this.touch) {
             console.log('touch', ev);
         } else {
-
-
             console.log(coors);
         }
 
