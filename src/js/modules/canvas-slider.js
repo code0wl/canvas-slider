@@ -73,9 +73,6 @@ class CanvasSlider {
             imgs = Object.keys(images),
             canvas = this.canvas;
 
-            this.maxScrollHorizontal = canvas.width * imgs.length;
-            this.maxScrollVertical = canvas.height * imgs.length;
-
             imgs.forEach((image, index) => {
                 let
                     offsetLeft = canvas.width * index,
@@ -189,8 +186,9 @@ class CanvasSlider {
             };
 
         if (this.touch) {
-            console.log('touch', ev);
+            console.log('touch', ev.type);
         } else {
+            console.log('mouse', ev.type);
             console.log(coors);
         }
 
