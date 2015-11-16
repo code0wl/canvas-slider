@@ -1,6 +1,6 @@
 'use strict';
 
-const CanvasSlider = class {
+class CanvasSlider {
 
     /**
      * New slider gets created with given props
@@ -9,6 +9,9 @@ const CanvasSlider = class {
      */
     constructor(...options) {
         this.relayConfig(...options);
+        this.startX = 0;
+        this.startY = 0;
+
         this.touch = ('ontouchstart' in window);
         this.imageModel = {};
         this.interactionsMap = {
@@ -63,7 +66,7 @@ const CanvasSlider = class {
      * Builds slider with relayed info then binds events when complete
      * @param {object} images remote data
      */
-    buildSlider(images) {
+    renderSlider(images) {
         let imageModel = this.imageModel,
             imgs = Object.keys(images),
             canvas = this.canvas;
@@ -97,6 +100,29 @@ const CanvasSlider = class {
                 imageModel[index].src = images[image].url;
             });
         this.addInteractions();
+    }
+
+
+    /**
+     * Sets given dimensions given from user or is fullscreen by default
+     * @param {object} dimensions
+     */
+    setDimensions(dimensions) {
+        let canvas = this.canvas;
+        if (dimensions) {
+            canvas.width = dimensions.width;
+            canvas.height = dimensions.height;
+        } else {
+            canvas.width = document.body.clientWidth;
+            canvas.height = document.body.clientHeight;
+        }
+
+        this.containerWidth = this.getImagesAmount() * canvas.width;
+        this.containerHeight = this.getImagesAmount() * canvas.height;
+    }
+
+    getImagesAmount(amount) {
+        return amount;
     }
 
     /**
@@ -141,7 +167,8 @@ const CanvasSlider = class {
                     return response.json();
                 })
                 .then((data) => {
-                    this.buildSlider(data.DCdogs);
+                    this.renderSlider(data.DCdogs);
+                    this.getImagesAmount();
                 })
                 .catch((e) => {
                     console.error("Unfortunately your remote source failed", e);
@@ -157,6 +184,13 @@ const CanvasSlider = class {
         if (this.touch) {
             console.log('touch', ev);
         } else {
+            let
+                coors = {
+                    x: ev.pageX,
+                    y: ev.pageY
+                }
+            console.log(coors);
+
 
         }
     }
