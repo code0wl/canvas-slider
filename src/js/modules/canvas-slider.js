@@ -50,6 +50,8 @@ class CanvasSlider {
         this.setDirection(options.direction);
         this.fetchData(options.data);
         this.setDimensions(options.dimensions);
+        this.startX = 0;
+        this.startY = 0;
         this.speed = options.speed || 100;
     }
 
@@ -91,8 +93,8 @@ class CanvasSlider {
                 imageModel[index] = new Image();
                 imageModel[index].addEventListener('load', () => {
                     if ( canvas.width >  imgWidth ) {
-                    //TODO: fix offset for next image inline
-                    this.context.drawImage(imageModel[index], canvas.width / 2 - imgWidth / 2, canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
+                        //TODO: fix offset for next image inline
+                        this.context.drawImage(imageModel[index], canvas.width / 2 - imgWidth / 2, canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
                     } else {
                         this.context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
                     }
@@ -101,7 +103,6 @@ class CanvasSlider {
             });
         this.addInteractions();
     }
-
 
     /**
      * Sets given dimensions given from user or is fullscreen by default
@@ -180,19 +181,22 @@ class CanvasSlider {
     }
 
     handleDrag(ev) {
-        
+
+        let bbox = this.getBoundingClientRect(),
+            coors = {
+                x: ev.clientX - bbox.left * (this.width / bbox.width),
+                y: ev.clientY - bbox.top * (this.height / bbox.height)
+            };
+
+
         if (this.touch) {
             console.log('touch', ev);
         } else {
-            let
-                coors = {
-                    x: ev.pageX,
-                    y: ev.pageY
-                }
+
+
             console.log(coors);
-
-
         }
+
     }
 
     /**
@@ -203,10 +207,33 @@ class CanvasSlider {
     handleInteraction(ev) {
         if (ev.type === 'mousedown') {
             this.canvas.addEventListener('mousemove', this.handleDrag);
+            this.startFPS();
         } else if (ev.type === 'touchstart') {
             this.canvas.addEventListener('touchmove', this.handleDrag);
         } else {
+            this.stopFPS();
             this.removeInteractions();
+        }
+    }
+
+    /**
+     * Handles interval for app lifecycle
+     */
+    startFPS() {
+        this.render = setInterval(() => {
+           console.log('ticker started');
+        }, 50);
+        this.run = true;
+    }
+
+    /**
+     * Stops app lifecycle
+     */
+    stopFPS() {
+        if (this.run) {
+            clearInterval(this.render);
+            console.log('ticker stopped');
+            this.run = !this.run;
         }
     }
 
