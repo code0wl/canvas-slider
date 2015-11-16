@@ -28,6 +28,21 @@ Checkout the project from this github repo
     gulp serve
     
     
+
+###api
+    document.addEventListener('DOMContentLoaded', function() {
+        var dcDogs = new CanvasSlider({
+            element: '.js-slider',
+            direction: 'horizontal',
+            data: '/data/dcdogs.json',
+            dimensions: {
+                width: '600',
+                height: '400'
+            }
+        });
+    });
+    
+    
 ###additional
 Enter the following for a list of build tasks
     
