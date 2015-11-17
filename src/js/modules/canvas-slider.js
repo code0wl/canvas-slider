@@ -12,21 +12,20 @@ class CanvasSlider {
         this.startY = 0;
         this.touch = ('ontouchstart' in window);
         this.imageModel = {};
+        this.setCoors = this.setCoors.bind(this);
         this.images;
         this.interactionsMap = {
             hybrid: () => this.canvas.addEventListener('selectstart', (e) => { e.preventDefault()}),
             touch: {
                 on: () => {
-                    this.canvas.addEventListener('touchstart', this.handleInteraction.bind(this), true);
-                    this.canvas.addEventListener('touchmove', this.handleInteraction.bind(this));
+                    this.canvas.addEventListener('touchstart', this.handleInteraction.bind(this));
                 }
             },
             mouse: {
                 on: () => {
                     this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this));
                     this.canvas.addEventListener('mouseup', this.handleInteraction.bind(this));
-                    this.canvas.addEventListener('mousemove', this.handleInteraction.bind(this));
-                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this), true);
+                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this));
                 },
 
                 off: () => {
@@ -65,7 +64,6 @@ class CanvasSlider {
      * @param {object} images remote data
      */
     renderSlider(images, coors) {
-        console.log(coors)
         let imageModel = this.imageModel,
             imgs = Object.keys(images);
 
@@ -83,7 +81,7 @@ class CanvasSlider {
      * @param {object} image
      * @param {number} current index converted image to canvas
      */
-    drawImages (image, index) {
+    drawImages(image, index) {
         let
             canvas = this.canvas,
             offsetLeft = canvas.width * index,
@@ -99,7 +97,6 @@ class CanvasSlider {
             middleY = ( canvas.height - imgHeight * aspectRatio ) / 2;
 
         if ( canvas.width >  imgWidth ) {
-            //TODO: fix offset for next image inline
             this.context.drawImage(image, canvas.width / 2 - imgWidth / 2, canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
         } else {
             this.context.drawImage(image, middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
@@ -174,24 +171,32 @@ class CanvasSlider {
     }
 
     /**
+     *
+     */
+    setCoors(ev) {
+        let bbox = this.canvas.getBoundingClientRect(),
+            coors = {
+                x: ev.clientX - bbox.left * (this.canvas.width / bbox.width),
+                y: ev.clientY - bbox.top * (this.canvas.height / bbox.height)
+            };
+        console.log(coors);
+    };
+
+    /**
      * Handles all slider interactions
      * @param event
      * @type Object
      */
     handleInteraction(ev) {
-        if (ev.type === 'mousedown' || ev.type === 'touchstart') {
-            if ( ev.type === 'mousemove' || ev.type === 'touchmove') {
-                console.log(ev);
-                let bbox = this.getBoundingClientRect(),
-                    coors = {
-                        x: ev.clientX - bbox.left * (this.width / bbox.width),
-                        y: ev.clientY - bbox.top * (this.height / bbox.height)
-                    };
-                this.startRender(coors);
-            }
+        let
+            eT = ev.type;
+
+        if (eT === 'mousedown' || eT === 'touchstart') {
+            this.canvas.addEventListener('touchstart', this.setCoors);
+            this.canvas.addEventListener('mousemove', this.setCoors);
         } else {
-            this.stopRender();
-            this.removeInteractions();
+            this.canvas.removeEventListener('touchstart', this.setCoors);
+            this.canvas.removeEventListener('mousemove', this.setCoors);
         }
     }
 
@@ -211,29 +216,8 @@ class CanvasSlider {
                 break;
         }
     }
-
-    /**
-     * Start rendering with the given coordinates
-     * @param {object} has the current mouse, touch coordinates
-     */
-    startRender(coors) {
-        this.render = setInterval( () => {
-            console.info('started render', coors);
-        }, 20);
-    }
-
-    /**
-     * Stops/pause rendering
-     */
-    stopRender() {
-        console.info('stopping render');
-        clearInterval(this.render);
-    }
-
 }
 
-//this.startX = 0;
-//
 //var img = new Image();
 //img.src = 'http://cssdeck.com/uploads/media/items/4/4OIJyak.png';
 //(function renderGame() {
