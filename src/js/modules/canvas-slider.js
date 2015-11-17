@@ -8,10 +8,7 @@ class CanvasSlider {
      * @type Object
      */
     constructor(...options) {
-
         this.startX = 0;
-        this.startY = 0;
-
         this.touch = ('ontouchstart' in window);
         this.imageModel = {};
         this.interactionsMap = {
@@ -78,7 +75,6 @@ class CanvasSlider {
                 imageModel[index].src = images[image].url;
                 console.log(this.context);
             });
-        this.context.save();
         this.addInteractions();
     }
 
@@ -176,20 +172,27 @@ class CanvasSlider {
         }
     }
 
-    handleDrag(ev) {
-        let bbox = this.getBoundingClientRect(),
+    moveCoordinates(ev) {
+        let bbox = this.canvas.getBoundingClientRect(),
             coors = {
-                x: ev.clientX - bbox.left * (this.width / bbox.width),
-                y: ev.clientY - bbox.top * (this.height / bbox.height)
+                x: ev.clientX - bbox.left * (this.canvas.width / bbox.width),
+                y: ev.clientY - bbox.top * (this.canvas.height / bbox.height)
             };
 
-        if (this.touch) {
-            console.log('touch', ev.type);
-        } else {
-            console.log('mouse', ev.type);
-            console.log(coors);
-        }
+        this.startX = coors.x;
+        this.startY = coors.y;
 
+        console.log(this);
+    }
+
+    startRender(ev) {
+        this.render = setInterval(() => {
+            this.context.translate(this.startX += 10, 0);
+        }, 200);
+    }
+
+    stopRender() {
+        clearInterval(this.render);
     }
 
     /**
@@ -200,12 +203,15 @@ class CanvasSlider {
     handleInteraction(ev) {
 
         if (ev.type === 'mousedown') {
-            this.canvas.addEventListener('mousemove', this.handleDrag);
+            this.canvas.addEventListener('mousemove', (ev) => this.moveCoordinates(ev));
+            this.startRender();
         } else if (ev.type === 'touchstart') {
-            this.canvas.addEventListener('touchmove', this.handleDrag);
+            this.canvas.addEventListener('touchmove', this.moveCoordinates);
         } else {
             this.removeInteractions();
         }
+
+        this.stopRender();
     }
 
     /**
