@@ -9,30 +9,29 @@ class CanvasSlider {
      */
     constructor(...options) {
         this.startX = 0;
+        this.startY = 0;
         this.touch = ('ontouchstart' in window);
         this.imageModel = {};
+        this.images;
         this.interactionsMap = {
             hybrid: () => this.canvas.addEventListener('selectstart', (e) => { e.preventDefault()}),
             touch: {
                 on: () => {
-                    this.canvas.addEventListener('touchstart', this.handleInteraction.bind(this));
-                },
-
-                off: () => {
-                    this.canvas.removeEventListener('touchmove', this.handleDrag);
+                    this.canvas.addEventListener('touchstart', this.handleInteraction.bind(this), true);
+                    this.canvas.addEventListener('touchmove', this.handleInteraction.bind(this));
                 }
             },
             mouse: {
                 on: () => {
                     this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this));
                     this.canvas.addEventListener('mouseup', this.handleInteraction.bind(this));
-                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this));
+                    this.canvas.addEventListener('mousemove', this.handleInteraction.bind(this));
+                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this), true);
                 },
 
                 off: () => {
                     this.canvas.removeEventListener('mouseleave', this.handleInteraction.bind(this));
                     this.canvas.removeEventListener('mouseup', this.handleInteraction.bind(this));
-                    this.canvas.removeEventListener('mousemove', this.handleDrag);
                 }
             }
         };
@@ -65,7 +64,8 @@ class CanvasSlider {
      * Builds slider with relayed info then binds events when complete
      * @param {object} images remote data
      */
-    renderSlider(images) {
+    renderSlider(images, coors) {
+        console.log(coors)
         let imageModel = this.imageModel,
             imgs = Object.keys(images);
 
@@ -73,15 +73,15 @@ class CanvasSlider {
                 imageModel[index] = new Image();
                 imageModel[index].addEventListener('load', () =>  this.drawImages(imageModel[index], index) );
                 imageModel[index].src = images[image].url;
-                console.log(this.context);
             });
+
         this.addInteractions();
     }
 
     /**
      * Indirection for building images
      * @param {object} image
-     * @param {number} index
+     * @param {number} current index converted image to canvas
      */
     drawImages (image, index) {
         let
@@ -142,10 +142,10 @@ class CanvasSlider {
     }
 
     /**
-     * Removes drag interactions for both touch and mouse
+     * Removes drag interactions for only the mouse
+     * Touch is always listening
      */
     removeInteractions() {
-        this.interactionsMap.touch.off();
         this.interactionsMap.mouse.off();
     }
 
@@ -160,7 +160,8 @@ class CanvasSlider {
                     return response.json();
                 })
                 .then((data) => {
-                    this.renderSlider(data.DCdogs);
+                    this.images = data;
+                    this.renderSlider(this.images);
                     this.getImagesAmount();
                 })
                 .catch((e) => {
@@ -172,46 +173,26 @@ class CanvasSlider {
         }
     }
 
-    moveCoordinates(ev) {
-        let bbox = this.canvas.getBoundingClientRect(),
-            coors = {
-                x: ev.clientX - bbox.left * (this.canvas.width / bbox.width),
-                y: ev.clientY - bbox.top * (this.canvas.height / bbox.height)
-            };
-
-        this.startX = coors.x;
-        this.startY = coors.y;
-
-        console.log(this);
-    }
-
-    startRender(ev) {
-        this.render = setInterval(() => {
-            this.context.translate(this.startX += 10, 0);
-        }, 200);
-    }
-
-    stopRender() {
-        clearInterval(this.render);
-    }
-
     /**
      * Handles all slider interactions
      * @param event
      * @type Object
      */
     handleInteraction(ev) {
-
-        if (ev.type === 'mousedown') {
-            this.canvas.addEventListener('mousemove', (ev) => this.moveCoordinates(ev));
-            this.startRender();
-        } else if (ev.type === 'touchstart') {
-            this.canvas.addEventListener('touchmove', this.moveCoordinates);
+        if (ev.type === 'mousedown' || ev.type === 'touchstart') {
+            if ( ev.type === 'mousemove' || ev.type === 'touchmove') {
+                console.log(ev);
+                let bbox = this.getBoundingClientRect(),
+                    coors = {
+                        x: ev.clientX - bbox.left * (this.width / bbox.width),
+                        y: ev.clientY - bbox.top * (this.height / bbox.height)
+                    };
+                this.startRender(coors);
+            }
         } else {
+            this.stopRender();
             this.removeInteractions();
         }
-
-        this.stopRender();
     }
 
     /**
@@ -230,9 +211,27 @@ class CanvasSlider {
                 break;
         }
     }
+
+    /**
+     * Start rendering with the given coordinates
+     * @param {object} has the current mouse, touch coordinates
+     */
+    startRender(coors) {
+        this.render = setInterval( () => {
+            console.info('started render', coors);
+        }, 20);
+    }
+
+    /**
+     * Stops/pause rendering
+     */
+    stopRender() {
+        console.info('stopping render');
+        clearInterval(this.render);
+    }
+
 }
-//
-//
+
 //this.startX = 0;
 //
 //var img = new Image();

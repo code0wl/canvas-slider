@@ -1,31 +1,30 @@
 {
-  "DCdogs": {
-    "image1": {
-      "name": "joker dog",
-      "url": "http://placecreature.com/900/900",
-      "width": "900",
-      "height": "900"
-    },
 
-    "image2": {
-      "name": "Robin dog",
-      "url": "http://placecreature.com/800/1200",
-      "width": "800",
-      "height": "1200"
-    },
+  "image1": {
+    "name": "joker dog",
+    "url": "http://placecreature.com/900/900",
+    "width": "900",
+    "height": "900"
+  },
 
-    "image3": {
-      "name": "laughing pooch",
-      "url": "http://placecreature.com/1024/768",
-      "width": "1024",
-      "height": "768"
-    },
+  "image2": {
+    "name": "Robin dog",
+    "url": "http://placecreature.com/800/1200",
+    "width": "800",
+    "height": "1200"
+  },
 
-    "image4": {
-      "name": "batdog",
-      "url": "http://placecreature.com/700/300",
-      "width": "700",
-      "height": "300"
-    }
+  "image3": {
+    "name": "laughing pooch",
+    "url": "http://placecreature.com/1024/768",
+    "width": "1024",
+    "height": "768"
+  },
+
+  "image4": {
+    "name": "batdog",
+    "url": "http://placecreature.com/700/300",
+    "width": "700",
+    "height": "300"
   }
 }
