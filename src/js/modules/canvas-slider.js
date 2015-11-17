@@ -8,13 +8,14 @@ class CanvasSlider {
      * @type Object
      */
     constructor(...options) {
-        this.relayConfig(...options);
+
         this.startX = 0;
         this.startY = 0;
 
         this.touch = ('ontouchstart' in window);
         this.imageModel = {};
         this.interactionsMap = {
+            hybrid: () => this.canvas.addEventListener('selectstart', (e) => { e.preventDefault()}),
             touch: {
                 on: () => {
                     this.canvas.addEventListener('touchstart', this.handleInteraction.bind(this));
@@ -24,7 +25,6 @@ class CanvasSlider {
                     this.canvas.removeEventListener('touchmove', this.handleDrag);
                 }
             },
-
             mouse: {
                 on: () => {
                     this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this));
@@ -39,6 +39,7 @@ class CanvasSlider {
                 }
             }
         };
+        this.relayConfig(...options);
     }
 
     /**
@@ -50,9 +51,8 @@ class CanvasSlider {
         this.setDirection(options.direction);
         this.fetchData(options.data);
         this.setDimensions(options.dimensions);
-        this.startX = 0;
-        this.startY = 0;
         this.speed = options.speed || 100;
+        this.interactionsMap.hybrid();
     }
 
     /**
@@ -70,35 +70,44 @@ class CanvasSlider {
      */
     renderSlider(images) {
         let imageModel = this.imageModel,
-            imgs = Object.keys(images),
-            canvas = this.canvas;
+            imgs = Object.keys(images);
 
             imgs.forEach((image, index) => {
-                let
-                    offsetLeft = canvas.width * index,
-                    imgWidth = images[image].width,
-                    imgHeight = images[image].height,
-
-                    HorizontalAspectRatio = canvas.width / imgWidth,
-                    verticalAspectRatio =  canvas.height / imgHeight,
-
-                    aspectRatio = Math.min ( HorizontalAspectRatio, verticalAspectRatio ),
-
-                    middleX = ( canvas.width - imgWidth * aspectRatio ) / 2,
-                    middleY = ( canvas.height - imgHeight * aspectRatio ) / 2;
-
                 imageModel[index] = new Image();
-                imageModel[index].addEventListener('load', () => {
-                    if ( canvas.width >  imgWidth ) {
-                        //TODO: fix offset for next image inline
-                        this.context.drawImage(imageModel[index], canvas.width / 2 - imgWidth / 2, canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
-                    } else {
-                        this.context.drawImage(imageModel[index], middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
-                    }
-                });
+                imageModel[index].addEventListener('load', () =>  this.drawImages(imageModel[index], index) );
                 imageModel[index].src = images[image].url;
+                console.log(this.context);
             });
+        this.context.save();
         this.addInteractions();
+    }
+
+    /**
+     * Indirection for building images
+     * @param {object} image
+     * @param {number} index
+     */
+    drawImages (image, index) {
+        let
+            canvas = this.canvas,
+            offsetLeft = canvas.width * index,
+            imgWidth = image.width,
+            imgHeight = image.height,
+
+            HorizontalAspectRatio = canvas.width / imgWidth,
+            verticalAspectRatio =  canvas.height / imgHeight,
+
+            aspectRatio = Math.min ( HorizontalAspectRatio, verticalAspectRatio ),
+
+            middleX = ( canvas.width - imgWidth * aspectRatio ) / 2,
+            middleY = ( canvas.height - imgHeight * aspectRatio ) / 2;
+
+        if ( canvas.width >  imgWidth ) {
+            //TODO: fix offset for next image inline
+            this.context.drawImage(image, canvas.width / 2 - imgWidth / 2, canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
+        } else {
+            this.context.drawImage(image, middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+        }
     }
 
     /**
@@ -119,6 +128,11 @@ class CanvasSlider {
         this.containerHeight = this.getImagesAmount() * canvas.height;
     }
 
+    /**
+     * Get total images to be loaded
+     * @param amount
+     * @returns {number}
+     */
     getImagesAmount(amount) {
         return amount;
     }
@@ -137,21 +151,6 @@ class CanvasSlider {
     removeInteractions() {
         this.interactionsMap.touch.off();
         this.interactionsMap.mouse.off();
-    }
-
-    /**
-     * Sets given dimensions given from user or is fullscreen by default
-     * @param {object} dimensions
-     */
-    setDimensions(dimensions) {
-        let canvas = this.canvas;
-        if (dimensions) {
-            canvas.width = dimensions.width;
-            canvas.height = dimensions.height;
-        } else {
-            canvas.width = document.body.clientWidth;
-            canvas.height = document.body.clientHeight;
-        }
     }
 
     /**
@@ -178,7 +177,6 @@ class CanvasSlider {
     }
 
     handleDrag(ev) {
-
         let bbox = this.getBoundingClientRect(),
             coors = {
                 x: ev.clientX - bbox.left * (this.width / bbox.width),
@@ -200,35 +198,13 @@ class CanvasSlider {
      * @type Object
      */
     handleInteraction(ev) {
+
         if (ev.type === 'mousedown') {
             this.canvas.addEventListener('mousemove', this.handleDrag);
-            this.startFPS();
         } else if (ev.type === 'touchstart') {
             this.canvas.addEventListener('touchmove', this.handleDrag);
         } else {
-            this.stopFPS();
             this.removeInteractions();
-        }
-    }
-
-    /**
-     * Handles interval for app lifecycle
-     */
-    startFPS() {
-        this.render = setInterval(() => {
-           console.log('ticker started');
-        }, 50);
-        this.run = true;
-    }
-
-    /**
-     * Stops app lifecycle
-     */
-    stopFPS() {
-        if (this.run) {
-            clearInterval(this.render);
-            console.log('ticker stopped');
-            this.run = !this.run;
         }
     }
 
@@ -249,3 +225,26 @@ class CanvasSlider {
         }
     }
 }
+//
+//
+//this.startX = 0;
+//
+//var img = new Image();
+//img.src = 'http://cssdeck.com/uploads/media/items/4/4OIJyak.png';
+//(function renderGame() {
+//    window.requestAnimationFrame(renderGame);
+//
+//    ctx.clearRect(0, 0, W, H);
+//
+//    ctx.fillStyle = '#333';
+//    ctx.fillRect(0, 0, 500, 400);
+//
+//    ctx.drawImage(img, vx, 50);
+//    ctx.drawImage(img, img.width-Math.abs(vx), 50);
+//
+//    if (Math.abs(vx) > img.width) {
+//        vx = 0;
+//    }
+//
+//    vx -= 2;
+//}());
