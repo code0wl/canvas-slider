@@ -9,28 +9,27 @@ class CanvasSlider {
      */
     constructor(...options) {
         this.startX = 0;
-        this.startY = 0;
+        this.imagesCollection = [];
         this.touch = ('ontouchstart' in window);
-        this.imageModel = {};
+        this.handleInteraction = this.handleInteraction.bind(this);
         this.setCoors = this.setCoors.bind(this);
-        this.images;
         this.interactionsMap = {
             hybrid: () => this.canvas.addEventListener('selectstart', (e) => { e.preventDefault()}),
             touch: {
                 on: () => {
-                    this.canvas.addEventListener('touchstart', this.handleInteraction.bind(this));
+                    this.canvas.addEventListener('touchstart', (this));
                 }
             },
             mouse: {
                 on: () => {
-                    this.canvas.addEventListener('mouseleave', this.handleInteraction.bind(this));
-                    this.canvas.addEventListener('mouseup', this.handleInteraction.bind(this));
-                    this.canvas.addEventListener('mousedown', this.handleInteraction.bind(this));
+                    this.canvas.addEventListener('mouseleave', this.handleInteraction);
+                    this.canvas.addEventListener('mouseup', this.handleInteraction);
+                    this.canvas.addEventListener('mousedown', this.handleInteraction);
                 },
 
                 off: () => {
-                    this.canvas.removeEventListener('mouseleave', this.handleInteraction.bind(this));
-                    this.canvas.removeEventListener('mouseup', this.handleInteraction.bind(this));
+                    this.canvas.removeEventListener('mouseleave', this.handleInteraction);
+                    this.canvas.removeEventListener('mouseup', this.handleInteraction);
                 }
             }
         };
@@ -63,16 +62,15 @@ class CanvasSlider {
      * Builds slider with relayed info then binds events when complete
      * @param {object} images remote data
      */
-    renderSlider(images, coors) {
-        let imageModel = this.imageModel,
-            imgs = Object.keys(images);
+    prepareSlider(images) {
+            let imgs = Object.keys(images);
 
             imgs.forEach((image, index) => {
-                imageModel[index] = new Image();
-                imageModel[index].addEventListener('load', () =>  this.drawImages(imageModel[index], index) );
-                imageModel[index].src = images[image].url;
+                images[index] = new Image();
+                images[index].src = images[image].url;
+                this.imagesCollection.push(images[index]);
             });
-
+        this.drawImages(this.imagesCollection);
         this.addInteractions();
     }
 
@@ -81,26 +79,33 @@ class CanvasSlider {
      * @param {object} image
      * @param {number} current index converted image to canvas
      */
-    drawImages(image, index) {
-        let
-            canvas = this.canvas,
-            offsetLeft = canvas.width * index,
-            imgWidth = image.width,
-            imgHeight = image.height,
+    drawImages(images) {
 
-            HorizontalAspectRatio = canvas.width / imgWidth,
-            verticalAspectRatio =  canvas.height / imgHeight,
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-            aspectRatio = Math.min ( HorizontalAspectRatio, verticalAspectRatio ),
+        images.forEach((image, index)=> {
 
-            middleX = ( canvas.width - imgWidth * aspectRatio ) / 2,
-            middleY = ( canvas.height - imgHeight * aspectRatio ) / 2;
+            let
+                offsetLeft = this.canvas.width * index,
+                imgWidth = image.width,
+                imgHeight = image.height,
 
-        if ( canvas.width >  imgWidth ) {
-            this.context.drawImage(image, canvas.width / 2 - imgWidth / 2, canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
-        } else {
-            this.context.drawImage(image, middleX + (offsetLeft), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
-        }
+                HorizontalAspectRatio = this.canvas.width / imgWidth,
+                verticalAspectRatio =  this.canvas.height / imgHeight,
+
+                aspectRatio = Math.min ( HorizontalAspectRatio, verticalAspectRatio ),
+
+                middleX = ( this.canvas.width - imgWidth * aspectRatio ) / 2,
+                middleY = ( this.canvas.height - imgHeight * aspectRatio ) / 2;
+
+            if ( this.canvas.width > imgWidth ) {
+                this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2, this.canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
+            } else {
+                this.context.drawImage(image, middleX + (offsetLeft) + this.startX , middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+            }
+
+        });
+
     }
 
     /**
@@ -116,18 +121,6 @@ class CanvasSlider {
             canvas.width = document.body.clientWidth;
             canvas.height = document.body.clientHeight;
         }
-
-        this.containerWidth = this.getImagesAmount() * canvas.width;
-        this.containerHeight = this.getImagesAmount() * canvas.height;
-    }
-
-    /**
-     * Get total images to be loaded
-     * @param amount
-     * @returns {number}
-     */
-    getImagesAmount(amount) {
-        return amount;
     }
 
     /**
@@ -136,6 +129,13 @@ class CanvasSlider {
     addInteractions() {
         this.interactionsMap.touch.on();
         this.interactionsMap.mouse.on();
+    }
+
+    /**
+     *
+     */
+    getImageCount() {
+        this.imageCount = this.imagesCollection.length;
     }
 
     /**
@@ -158,8 +158,7 @@ class CanvasSlider {
                 })
                 .then((data) => {
                     this.images = data;
-                    this.renderSlider(this.images);
-                    this.getImagesAmount();
+                    this.prepareSlider(this.images);
                 })
                 .catch((e) => {
                     console.error("Unfortunately your remote source failed", e);
@@ -174,12 +173,31 @@ class CanvasSlider {
      *
      */
     setCoors(ev) {
-        let bbox = this.canvas.getBoundingClientRect(),
+        let bbox = this.canvas.getBoundingClientRect();
+        let coors;
+
+        if ( this.touch ) {
+            //todo get touch coordinates
             coors = {
                 x: ev.clientX - bbox.left * (this.canvas.width / bbox.width),
                 y: ev.clientY - bbox.top * (this.canvas.height / bbox.height)
             };
-        console.log(coors);
+            console.log(coors);
+        } else {
+            coors = {
+                x: ev.clientX - bbox.left * (this.canvas.width / bbox.width),
+                y: ev.clientY - bbox.top * (this.canvas.height / bbox.height)
+            };
+
+            console.log(this.containerHeight)
+
+            this.startX = coors.x;
+
+            console.log(this.startX)
+        }
+
+        this.drawImages(this.imagesCollection);
+
     };
 
     /**
@@ -192,10 +210,10 @@ class CanvasSlider {
             eT = ev.type;
 
         if (eT === 'mousedown' || eT === 'touchstart') {
-            this.canvas.addEventListener('touchstart', this.setCoors);
+            this.canvas.addEventListener('touchmove', this.setCoors);
             this.canvas.addEventListener('mousemove', this.setCoors);
         } else {
-            this.canvas.removeEventListener('touchstart', this.setCoors);
+            this.canvas.removeEventListener('touchmove', this.setCoors);
             this.canvas.removeEventListener('mousemove', this.setCoors);
         }
     }
@@ -218,22 +236,52 @@ class CanvasSlider {
     }
 }
 
-//var img = new Image();
-//img.src = 'http://cssdeck.com/uploads/media/items/4/4OIJyak.png';
-//(function renderGame() {
-//    window.requestAnimationFrame(renderGame);
-//
-//    ctx.clearRect(0, 0, W, H);
-//
-//    ctx.fillStyle = '#333';
-//    ctx.fillRect(0, 0, 500, 400);
-//
-//    ctx.drawImage(img, vx, 50);
-//    ctx.drawImage(img, img.width-Math.abs(vx), 50);
-//
-//    if (Math.abs(vx) > img.width) {
-//        vx = 0;
-//    }
-//
-//    vx -= 2;
-//}());
+
+/*
+
+
+ // rAF
+ window.requestAnimationFrame = function() {
+ return window.requestAnimationFrame ||
+ window.webkitRequestAnimationFrame ||
+ window.mozRequestAnimationFrame ||
+ window.msRequestAnimationFrame ||
+ window.oRequestAnimationFrame ||
+ function(f) {
+ window.setTimeout(f,1e3/60);
+ }
+ }();
+
+ var canvas = document.querySelector('canvas');
+ var ctx = canvas.getContext('2d');
+
+ var W = canvas.width;
+ var H = canvas.height;
+
+ // We want to move/slide/scroll the background
+ // as the player moves or the game progresses
+
+ // Velocity X
+ var vx = 0;
+
+ var img = new Image();
+ img.src = 'http://cssdeck.com/uploads/media/items/4/4OIJyak.png';
+
+ (function renderGame() {
+ window.requestAnimationFrame(renderGame);
+
+ ctx.clearRect(0, 0, W, H);
+
+ ctx.fillStyle = '#333';
+ ctx.fillRect(0, 0, 500, 400);
+
+ ctx.drawImage(img, vx, 50);
+ ctx.drawImage(img, img.width-Math.abs(vx), 50);
+
+ if (Math.abs(vx) > img.width) {
+ vx = 0;
+ }
+
+ vx -= 2;
+ }());
+ */
