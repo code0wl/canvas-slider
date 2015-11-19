@@ -179,16 +179,6 @@ class CanvasSlider {
     }
 
     /**
-     * Calcs difference between start and finish
-     * @param {number} start
-     * @param {number} finish
-     * @returns {number}
-     */
-    calcDiff(start, finish) {
-        return Math.abs(start - finish);
-    }
-
-    /**
      * Sets coordinates for the current scroll on the canvas
      * @param {object} ev object
      */
