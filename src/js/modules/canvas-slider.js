@@ -9,6 +9,7 @@ class CanvasSlider {
      */
     constructor(...options) {
         this.imagesCollection = [];
+        this.lastX = 0; this.lastY = 0;
         this.touch = ('ontouchstart' in window);
         this.handleInteraction = this.handleInteraction.bind(this);
         this.setCoors = this.setCoors.bind(this);
@@ -79,6 +80,11 @@ class CanvasSlider {
         }, 1000);
     }
 
+    /**
+     * Taking the collection length saving it in memory
+     * @param number count
+     * @returns {number}
+     */
     imageCount(count) {
         return this.imageCount = count;
     }
@@ -165,16 +171,10 @@ class CanvasSlider {
         }
     }
 
-    getCoors() {
-
-
-
-    }
-
     /**
      * Calcs difference between start and finish
-     * @param start
-     * @param finish
+     * @param {number} start
+     * @param {number} finish
      * @returns {number}
      */
     difference(start, finish) {
@@ -186,8 +186,7 @@ class CanvasSlider {
      * @param {object} ev object
      */
     setCoors(ev) {
-        let bbox = this.canvas.getBoundingClientRect(),
-        coors;
+        let coors;
 
         if ( this.touch ) {
 
@@ -196,7 +195,7 @@ class CanvasSlider {
                 x: ev.offsetX || (ev.pageX - ev.offsetLeft),
                 y: ev.offsetY || (ev.pageY - ev.offsetTop)
             };
-
+            this.coordinates = coors;
         }
         this.updateSlider();
     };
@@ -215,6 +214,8 @@ class CanvasSlider {
             canvas.addEventListener('touchmove', this.setCoors);
             canvas.addEventListener('mousemove', this.setCoors);
         } else {
+            this.lastX = this.coordinates.x;
+            console.log('last known position:', this.lastX);
             canvas.removeEventListener('touchmove', this.setCoors);
             canvas.removeEventListener('mousemove', this.setCoors);
         }
@@ -238,7 +239,6 @@ class CanvasSlider {
     }
 
     updateSlider() {
-        this.getCoors();
         this.drawImages(this.imagesCollection);
     }
 }
