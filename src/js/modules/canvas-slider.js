@@ -9,11 +9,6 @@ class CanvasSlider {
      */
     constructor(...options) {
         this.imagesCollection = [];
-        this.startX = 0;
-        this.startY = 0;
-        this.endX = 0;
-        this.endY = 0;
-        this.coors;
         this.touch = ('ontouchstart' in window);
         this.handleInteraction = this.handleInteraction.bind(this);
         this.setCoors = this.setCoors.bind(this);
@@ -80,7 +75,7 @@ class CanvasSlider {
 
         // todo fix timeout with promise
         setTimeout(() => {
-            this.drawImages(this.imagesCollection);
+            this.updateSlider();
         }, 1000);
     }
 
@@ -93,8 +88,6 @@ class CanvasSlider {
      * @param {object} images
      */
     drawImages(images) {
-        console.log('end ref', this.endX);
-
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         images.forEach((image, index)=> {
 
@@ -172,20 +165,40 @@ class CanvasSlider {
         }
     }
 
+    getCoors() {
+
+
+
+    }
+
+    /**
+     * Calcs difference between start and finish
+     * @param start
+     * @param finish
+     * @returns {number}
+     */
+    difference(start, finish) {
+        return Math.abs(start - finish);
+    }
+
     /**
      * Sets coordinates for the current scroll on the canvas
      * @param {object} ev object
      */
     setCoors(ev) {
-        let coors;
+        let bbox = this.canvas.getBoundingClientRect(),
+        coors;
 
         if ( this.touch ) {
 
         } else {
-            coors = { x: ev.clientX, y: ev.clientY };
-            this.coors = coors;
+            coors = {
+                x: ev.offsetX || (ev.pageX - ev.offsetLeft),
+                y: ev.offsetY || (ev.pageY - ev.offsetTop)
+            };
+
         }
-        this.drawImages(this.imagesCollection);
+        this.updateSlider();
     };
 
     /**
@@ -193,17 +206,15 @@ class CanvasSlider {
      * @param ev {object} event
      */
     handleInteraction(ev) {
-
         let
             eT = ev.type,
             canvas = this.canvas;
 
         if (eT === 'mousedown' || eT === 'touchstart') {
+            this.setCoors(ev);
             canvas.addEventListener('touchmove', this.setCoors);
             canvas.addEventListener('mousemove', this.setCoors);
-            console.log(this.startX);
         } else {
-            this.endX = this.coors.x;
             canvas.removeEventListener('touchmove', this.setCoors);
             canvas.removeEventListener('mousemove', this.setCoors);
         }
@@ -224,5 +235,10 @@ class CanvasSlider {
                 this.direction = direction;
                 break;
         }
+    }
+
+    updateSlider() {
+        this.getCoors();
+        this.drawImages(this.imagesCollection);
     }
 }
