@@ -24,7 +24,6 @@ Use when speed is absolutely a necessity! Also works on mobile.
 - crop image
 - rotate image
 - force scroll with physics and momentum
-- Tests
 
 ###usage
 Checkout the project from this github repo
@@ -67,7 +66,3 @@ Checkout the project from this github repo
 Enter the following for a list of build tasks
     
     gulp help
-    
-
-###Expected completion time
-19 - 11 - 2015
