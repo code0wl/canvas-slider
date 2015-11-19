@@ -8,12 +8,8 @@ class CanvasSlider {
      */
     constructor(...options) {
         this.imagesCollection = [];
-        this.canvasPosition = {
-            deltaX: 0, deltaY: 0
-        };
-        this.coors = {
-
-        };
+        this.canvasPosition = {deltaX: 0, deltaY: 0};
+        this.coors = {};
         this.touch = ('ontouchstart' in window);
         this.handleInteraction = this.handleInteraction.bind(this);
         this.setCoors = this.setCoors.bind(this);
@@ -66,7 +62,7 @@ class CanvasSlider {
      * Builds slider with relayed info then binds events when complete
      * @param {object} images remote data
      */
-    prepareSlider(images) {
+    prepareSlider(images, direction) {
             let imgs = Object.keys(images);
 
             imgs.forEach((image, index) => {
@@ -100,9 +96,9 @@ class CanvasSlider {
     drawImages(images) {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         images.forEach((image, index)=> {
-
             let
                 offsetLeft = this.canvas.width * index,
+                offsetTop = this.canvas.height * index,
                 imgWidth = image.width,
                 imgHeight = image.height,
 
@@ -114,10 +110,18 @@ class CanvasSlider {
                 middleX = ( this.canvas.width - imgWidth * aspectRatio ) / 2,
                 middleY = ( this.canvas.height - imgHeight * aspectRatio ) / 2;
 
-            if ( this.canvas.width > imgWidth ) {
-                this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2, this.canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
+            if (this.direction === 'horizontal') {
+                if ( this.canvas.width > imgWidth ) {
+                    this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2 + this.canvasPosition.deltaX, this.canvas.height / 2 - imgHeight / 2, imgWidth, imgHeight);
+                } else {
+                    this.context.drawImage(image, middleX + (offsetLeft + this.canvasPosition.deltaX), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                }
             } else {
-                this.context.drawImage(image, middleX + (offsetLeft + this.canvasPosition.deltaX), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                if ( this.canvas.width > imgWidth ) {
+                    this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2, this.canvas.height / 2 - imgHeight / 2 + this.canvasPosition.deltaY, imgWidth, imgHeight);
+                } else {
+                    this.context.drawImage(image, middleX, middleY + (offsetTop + this.canvasPosition.deltaY), imgWidth * aspectRatio, imgHeight * aspectRatio);
+                }
             }
 
         });
@@ -168,11 +172,9 @@ class CanvasSlider {
                     this.prepareSlider(data);
                 })
                 .catch((e) => {
-                    console.error("Unfortunately your remote source failed", e);
+                    console.error(e);
                 });
 
-        } else {
-            console.info('Setup some local images');
         }
     }
 
@@ -193,20 +195,12 @@ class CanvasSlider {
     setCoors(ev) {
         let bbox = this.canvas.getBoundingClientRect();
 
+        this.coors.x = ev.clientX - bbox.left;
+        this.coors.y = ev.clientY - bbox.top;
 
-        if ( this.touch ) {
+        this.canvasPosition.deltaX = (this.coors.x - this.coors.mouseX);
+        this.canvasPosition.deltaY = (this.coors.y - this.coors.mouseY);
 
-        } else {
-
-            // get the current mouse position (updates every time the mouse is moved durring dragging)
-            let bbox = this.canvas.getBoundingClientRect();
-                this.coors.x = ev.clientX - bbox.left;
-                this.coors.y = ev.clientY - bbox.top;
-
-            this.canvasPosition.deltaX = (this.coors.x - this.coors.mouseX);
-            this.canvasPosition.deltaY = (this.coors.y - this.coors.mouseY);
-
-        }
         this.updateSlider();
     };
 
@@ -223,7 +217,6 @@ class CanvasSlider {
         if (eT === 'mousedown' || eT === 'touchstart') {
             this.coors.mouseX = (ev.clientX - bbox.left) - this.canvasPosition.deltaX;
             this.coors.mouseY = (ev.clientY - bbox.top) - this.canvasPosition.deltaY;
-
             canvas.addEventListener('touchmove', this.setCoors);
             canvas.addEventListener('mousemove', this.setCoors);
         } else {
@@ -249,6 +242,9 @@ class CanvasSlider {
         }
     }
 
+    /**
+     * Life cycle controller which relays if the slider should be rendered at all
+     */
     updateSlider() {
         this.drawImages(this.imagesCollection);
     }

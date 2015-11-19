@@ -8,15 +8,16 @@ Use when speed is absolutely a necessity! Also works on mobile.
 - image to canvas convertion
 - documented code coverage
 - Modern buildstreet
-- Image aspect ratio resize 
-- Map events to canvas coordinates
-- linting
-- no libs, clean ES2015
-
-###Feature pipeline
-- Webpack integration
+- Image aspect ratio resize
 - Horizontal scroll
 - Vertical scroll
+- Map events to canvas coordinates
+- linting
+- no libs, clean ES2015 (w/babel)
+
+###Feature pipeline
+- Mobile
+- Webpack integration for modularity in classes 
 - Both for possible screensave mode
 - Tests
 
@@ -41,6 +42,20 @@ Checkout the project from this github repo
             }
         });
     });
+    
+    <!-- or... -->
+    
+    document.addEventListener('DOMContentLoaded', function() {
+            var dcDogs = new CanvasSlider({
+                element: '.js-slider',
+                direction: 'vertical',
+                data: '/data/dcdogs.json',
+                dimensions: {
+                    width: '600',
+                    height: '400'
+                }
+            });
+        });
     
     
 ###additional

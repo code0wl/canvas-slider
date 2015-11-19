@@ -10,9 +10,14 @@
 <body>
     <main>
         <section>
-            <h1>Canvas Slider</h1>
+            <h1>Canvas Slider Horizontal</h1>
             <canvas class="js-slider canvas-slider"></canvas>
-            <span>Drag to navigate through images</span>
+            <span>Drag horizontally to navigate through images</span>
+        </section>
+        <section>
+            <h1>Canvas Slider Vertical</h1>
+            <canvas class="js-slider2 canvas-slider"></canvas>
+            <span>Drag vertically to navigate through images</span>
         </section>
     </main>
 
@@ -32,6 +37,18 @@
                 dimensions: {
                     width: '600',
                     height: '400'
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var dcDogs = new CanvasSlider({
+                element: '.js-slider2',
+                direction: 'vertical',
+                data: '/data/dcdogs.json',
+                dimensions: {
+                    width: '500',
+                    height: '200'
                 }
             });
         });
