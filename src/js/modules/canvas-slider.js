@@ -4,12 +4,16 @@ class CanvasSlider {
 
     /**
      * New slider gets created with given props
-     * @param options
-     * @type Object
+     * @param {object} options
      */
     constructor(...options) {
         this.imagesCollection = [];
-        this.lastX = 0; this.lastY = 0;
+        this.canvasPosition = {
+            deltaX: 0, deltaY: 0
+        };
+        this.coors = {
+
+        };
         this.touch = ('ontouchstart' in window);
         this.handleInteraction = this.handleInteraction.bind(this);
         this.setCoors = this.setCoors.bind(this);
@@ -66,7 +70,7 @@ class CanvasSlider {
             let imgs = Object.keys(images);
 
             imgs.forEach((image, index) => {
-                images[index] = new Image();
+                images[index] = new Image;
                 images[index].src = images[image].url;
                 this.imagesCollection.push(images[index]);
             });
@@ -113,8 +117,9 @@ class CanvasSlider {
             if ( this.canvas.width > imgWidth ) {
                 this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2, this.canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
             } else {
-                this.context.drawImage(image, middleX + (offsetLeft) , middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                this.context.drawImage(image, middleX + (offsetLeft + this.canvasPosition.deltaX), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
             }
+
         });
     }
 
@@ -177,7 +182,7 @@ class CanvasSlider {
      * @param {number} finish
      * @returns {number}
      */
-    difference(start, finish) {
+    calcDiff(start, finish) {
         return Math.abs(start - finish);
     }
 
@@ -186,16 +191,21 @@ class CanvasSlider {
      * @param {object} ev object
      */
     setCoors(ev) {
-        let coors;
+        let bbox = this.canvas.getBoundingClientRect();
+
 
         if ( this.touch ) {
 
         } else {
-            coors = {
-                x: ev.offsetX || (ev.pageX - ev.offsetLeft),
-                y: ev.offsetY || (ev.pageY - ev.offsetTop)
-            };
-            this.coordinates = coors;
+
+            // get the current mouse position (updates every time the mouse is moved durring dragging)
+            let bbox = this.canvas.getBoundingClientRect();
+                this.coors.x = ev.clientX - bbox.left;
+                this.coors.y = ev.clientY - bbox.top;
+
+            this.canvasPosition.deltaX = (this.coors.x - this.coors.mouseX);
+            this.canvasPosition.deltaY = (this.coors.y - this.coors.mouseY);
+
         }
         this.updateSlider();
     };
@@ -207,15 +217,16 @@ class CanvasSlider {
     handleInteraction(ev) {
         let
             eT = ev.type,
-            canvas = this.canvas;
+            canvas = this.canvas,
+            bbox = canvas.getBoundingClientRect();
 
         if (eT === 'mousedown' || eT === 'touchstart') {
-            this.setCoors(ev);
+            this.coors.mouseX = (ev.clientX - bbox.left) - this.canvasPosition.deltaX;
+            this.coors.mouseY = (ev.clientY - bbox.top) - this.canvasPosition.deltaY;
+
             canvas.addEventListener('touchmove', this.setCoors);
             canvas.addEventListener('mousemove', this.setCoors);
         } else {
-            this.lastX = this.coordinates.x;
-            console.log('last known position:', this.lastX);
             canvas.removeEventListener('touchmove', this.setCoors);
             canvas.removeEventListener('mousemove', this.setCoors);
         }
