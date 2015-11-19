@@ -8,8 +8,12 @@ class CanvasSlider {
      * @type Object
      */
     constructor(...options) {
-        this.startX = 0;
         this.imagesCollection = [];
+        this.startX = 0;
+        this.startY = 0;
+        this.endX = 0;
+        this.endY = 0;
+        this.coors;
         this.touch = ('ontouchstart' in window);
         this.handleInteraction = this.handleInteraction.bind(this);
         this.setCoors = this.setCoors.bind(this);
@@ -50,7 +54,7 @@ class CanvasSlider {
     }
 
     /**
-     * @Set element
+     * @Sets element class or ID
      * @param {string} element
      */
     setCanvas(element) {
@@ -70,19 +74,28 @@ class CanvasSlider {
                 images[index].src = images[image].url;
                 this.imagesCollection.push(images[index]);
             });
-        this.drawImages(this.imagesCollection);
+
+        this.imageCount(this.imagesCollection.length);
         this.addInteractions();
+
+        // todo fix timeout with promise
+        setTimeout(() => {
+            this.drawImages(this.imagesCollection);
+        }, 1000);
+    }
+
+    imageCount(count) {
+        return this.imageCount = count;
     }
 
     /**
-     * Indirection for building images
-     * @param {object} image
-     * @param {number} current index converted image to canvas
+     * Drawimages on canvas
+     * @param {object} images
      */
     drawImages(images) {
+        console.log('end ref', this.endX);
 
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
         images.forEach((image, index)=> {
 
             let
@@ -101,11 +114,9 @@ class CanvasSlider {
             if ( this.canvas.width > imgWidth ) {
                 this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2, this.canvas.height / 2 - imgWidth / 2, imgWidth, imgHeight);
             } else {
-                this.context.drawImage(image, middleX + (offsetLeft) + this.startX , middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                this.context.drawImage(image, middleX + (offsetLeft) , middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
             }
-
         });
-
     }
 
     /**
@@ -132,13 +143,6 @@ class CanvasSlider {
     }
 
     /**
-     *
-     */
-    getImageCount() {
-        this.imageCount = this.imagesCollection.length;
-    }
-
-    /**
      * Removes drag interactions for only the mouse
      * Touch is always listening
      */
@@ -157,8 +161,7 @@ class CanvasSlider {
                     return response.json();
                 })
                 .then((data) => {
-                    this.images = data;
-                    this.prepareSlider(this.images);
+                    this.prepareSlider(data);
                 })
                 .catch((e) => {
                     console.error("Unfortunately your remote source failed", e);
@@ -170,51 +173,39 @@ class CanvasSlider {
     }
 
     /**
-     *
+     * Sets coordinates for the current scroll on the canvas
+     * @param {object} ev object
      */
     setCoors(ev) {
-        let bbox = this.canvas.getBoundingClientRect();
         let coors;
 
         if ( this.touch ) {
-            //todo get touch coordinates
-            coors = {
-                x: ev.clientX - bbox.left * (this.canvas.width / bbox.width),
-                y: ev.clientY - bbox.top * (this.canvas.height / bbox.height)
-            };
-            console.log(coors);
+
         } else {
-            coors = {
-                x: ev.clientX - bbox.left * (this.canvas.width / bbox.width),
-                y: ev.clientY - bbox.top * (this.canvas.height / bbox.height)
-            };
-
-            console.log(this.containerHeight)
-
-            this.startX = coors.x;
-
-            console.log(this.startX)
+            coors = { x: ev.clientX, y: ev.clientY };
+            this.coors = coors;
         }
-
         this.drawImages(this.imagesCollection);
-
     };
 
     /**
      * Handles all slider interactions
-     * @param event
-     * @type Object
+     * @param ev {object} event
      */
     handleInteraction(ev) {
+
         let
-            eT = ev.type;
+            eT = ev.type,
+            canvas = this.canvas;
 
         if (eT === 'mousedown' || eT === 'touchstart') {
-            this.canvas.addEventListener('touchmove', this.setCoors);
-            this.canvas.addEventListener('mousemove', this.setCoors);
+            canvas.addEventListener('touchmove', this.setCoors);
+            canvas.addEventListener('mousemove', this.setCoors);
+            console.log(this.startX);
         } else {
-            this.canvas.removeEventListener('touchmove', this.setCoors);
-            this.canvas.removeEventListener('mousemove', this.setCoors);
+            this.endX = this.coors.x;
+            canvas.removeEventListener('touchmove', this.setCoors);
+            canvas.removeEventListener('mousemove', this.setCoors);
         }
     }
 
@@ -235,53 +226,3 @@ class CanvasSlider {
         }
     }
 }
-
-
-/*
-
-
- // rAF
- window.requestAnimationFrame = function() {
- return window.requestAnimationFrame ||
- window.webkitRequestAnimationFrame ||
- window.mozRequestAnimationFrame ||
- window.msRequestAnimationFrame ||
- window.oRequestAnimationFrame ||
- function(f) {
- window.setTimeout(f,1e3/60);
- }
- }();
-
- var canvas = document.querySelector('canvas');
- var ctx = canvas.getContext('2d');
-
- var W = canvas.width;
- var H = canvas.height;
-
- // We want to move/slide/scroll the background
- // as the player moves or the game progresses
-
- // Velocity X
- var vx = 0;
-
- var img = new Image();
- img.src = 'http://cssdeck.com/uploads/media/items/4/4OIJyak.png';
-
- (function renderGame() {
- window.requestAnimationFrame(renderGame);
-
- ctx.clearRect(0, 0, W, H);
-
- ctx.fillStyle = '#333';
- ctx.fillRect(0, 0, 500, 400);
-
- ctx.drawImage(img, vx, 50);
- ctx.drawImage(img, img.width-Math.abs(vx), 50);
-
- if (Math.abs(vx) > img.width) {
- vx = 0;
- }
-
- vx -= 2;
- }());
- */
