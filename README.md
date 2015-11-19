@@ -7,18 +7,23 @@ Use when speed is absolutely a necessity! Also works on mobile.
 - image fetch api
 - image to canvas convertion
 - documented code coverage
-- Modern buildstreet
+- modern buildstreet
 - Image aspect ratio resize
-- Horizontal scroll
-- Vertical scroll
-- Map events to canvas coordinates
+- horizontal scroll
+- vertical scroll
+- map events to canvas coordinates
 - linting
 - no libs, clean ES2015 (w/babel)
 
 ###Feature pipeline
 - Mobile
-- Webpack integration for modularity in classes 
-- Both for possible screensave mode
+- import image
+- select image to modify
+- add effects to image
+- !deadzone scrolling 
+- crop image
+- rotate image
+- force scroll with physics and momentum
 - Tests
 
 ###usage
