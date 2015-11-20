@@ -13,6 +13,7 @@ Use when speed is absolutely a necessity! Also works on mobile.
 - vertical scroll
 - map events to canvas coordinates
 - linting
+- !deadzone scrolling
 - no libs, clean ES2015 (w/babel)
 
 ###Feature pipeline
@@ -20,7 +21,6 @@ Use when speed is absolutely a necessity! Also works on mobile.
 - import image
 - select image to modify
 - add effects to image
-- !deadzone scrolling 
 - crop image
 - rotate image
 - force scroll with physics and momentum

@@ -185,7 +185,6 @@ class CanvasSlider {
      * @param {object} ev object
      */
     setCoors(ev) {
-
         let bbox = this.canvas.getBoundingClientRect();
         this.coors.x = ev.clientX - bbox.left;
         this.coors.y = ev.clientY - bbox.top;
