@@ -45,7 +45,6 @@ class CanvasSlider {
         this.setDirection(options.direction);
         this.fetchData(options.data);
         this.setDimensions(options.dimensions);
-        this.speed = options.speed || 100;
         this.interactionsMap.hybrid();
     }
 
@@ -62,7 +61,7 @@ class CanvasSlider {
      * Builds slider with relayed info then binds events when complete
      * @param {object} images remote data
      */
-    prepareSlider(images, direction) {
+    prepareSlider(images) {
             let imgs = Object.keys(images);
 
             imgs.forEach((image, index) => {
@@ -73,7 +72,7 @@ class CanvasSlider {
 
         this.imageCount(this.imagesCollection.length);
         this.addInteractions();
-
+        this.context.save();
         // todo fix timeout with promise
         setTimeout(() => {
             this.updateSlider();
@@ -82,7 +81,7 @@ class CanvasSlider {
 
     /**
      * Taking the collection length saving it in memory
-     * @param number count
+     * @param {number} count
      * @returns {number}
      */
     imageCount(count) {
@@ -90,6 +89,8 @@ class CanvasSlider {
     }
 
     /**
+     * Calc image dimentions
+     * fit images to canvas
      * Drawimages on canvas
      * @param {object} images
      */
@@ -180,19 +181,36 @@ class CanvasSlider {
 
     /**
      * Sets coordinates for the current scroll on the canvas
+     * Calc if in deadzone to avoid overscrolling
      * @param {object} ev object
      */
     setCoors(ev) {
-        let bbox = this.canvas.getBoundingClientRect();
 
+        let bbox = this.canvas.getBoundingClientRect();
         this.coors.x = ev.clientX - bbox.left;
         this.coors.y = ev.clientY - bbox.top;
 
         this.canvasPosition.deltaX = (this.coors.x - this.coors.mouseX);
         this.canvasPosition.deltaY = (this.coors.y - this.coors.mouseY);
 
+        console.log('current', this.canvasPosition.deltaX);
+
+        switch (this.direction) {
+            case 'horizontal':
+                if (this.canvasPosition.deltaX > 0 || this.canvasPosition.deltaX < (-this.canvas.width * this.imageCount)) {
+                    this.canvasPosition.deltaX = 0;
+                }
+                break;
+
+            case 'vertical':
+            default:
+                if (this.canvasPosition.deltaY > 0 || this.canvasPosition.deltaY < (-this.canvas.height * this.imageCount)) {
+                    this.canvasPosition.deltaY = 0;
+                }
+                break;
+        }
         this.updateSlider();
-    };
+    }
 
     /**
      * Handles all slider interactions
