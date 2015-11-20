@@ -73,10 +73,7 @@ class CanvasSlider {
         this.imageCount(this.imagesCollection.length);
         this.addInteractions();
         this.context.save();
-        // todo fix timeout with promise
-        setTimeout(() => {
-            this.updateSlider();
-        }, 1000);
+        setTimeout(() => { this.updateSlider(); }, 1000);
     }
 
     /**
@@ -175,7 +172,6 @@ class CanvasSlider {
                 .catch((e) => {
                     console.error(e);
                 });
-
         }
     }
 
@@ -185,26 +181,35 @@ class CanvasSlider {
      * @param {object} ev object
      */
     setCoors(ev) {
-        let bbox = this.canvas.getBoundingClientRect();
+        let
+            bbox = this.canvas.getBoundingClientRect(),
+            canvanPosition = this.canvasPosition,
+            lastXPosition = (-this.canvas.width * (this.imageCount - 1)),
+            lastYPosition = (-this.canvas.height * (this.imageCount - 1));
+
         this.coors.x = ev.clientX - bbox.left;
         this.coors.y = ev.clientY - bbox.top;
 
-        this.canvasPosition.deltaX = (this.coors.x - this.coors.mouseX);
-        this.canvasPosition.deltaY = (this.coors.y - this.coors.mouseY);
+        canvanPosition.deltaX = (this.coors.x - this.coors.mouseX);
+        canvanPosition.deltaY = (this.coors.y - this.coors.mouseY);
 
-        console.log('current', this.canvasPosition.deltaX);
+        console.log('current', canvanPosition.deltaX);
 
         switch (this.direction) {
             case 'horizontal':
-                if (this.canvasPosition.deltaX > 0 || this.canvasPosition.deltaX < (-this.canvas.width * this.imageCount)) {
-                    this.canvasPosition.deltaX = 0;
+                if (canvanPosition.deltaX > 0) {
+                    canvanPosition.deltaX = 0;
+                } else if (canvanPosition.deltaX < lastXPosition ) {
+                    canvanPosition.deltaX = lastXPosition;
                 }
                 break;
 
             case 'vertical':
             default:
-                if (this.canvasPosition.deltaY > 0 || this.canvasPosition.deltaY < (-this.canvas.height * this.imageCount)) {
-                    this.canvasPosition.deltaY = 0;
+                if (canvanPosition.deltaY > 0) {
+                    canvanPosition.deltaY = 0;
+                } else if (canvanPosition.deltaY < lastYPosition) {
+                    canvanPosition.deltaY = lastYPosition;
                 }
                 break;
         }
