@@ -17,7 +17,7 @@ class CanvasSlider {
             hybrid: () => this.canvas.addEventListener('selectstart', (e) => { e.preventDefault()}),
             touch: {
                 on: () => {
-                    this.canvas.addEventListener('touchstart', (this));
+                    this.canvas.addEventListener('touchstart', this.handleInteraction);
                 }
             },
             mouse: {
