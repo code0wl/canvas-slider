@@ -183,33 +183,33 @@ class CanvasSlider {
     setCoors(ev) {
         let
             bbox = this.canvas.getBoundingClientRect(),
-            canvanPosition = this.canvasPosition,
+            canvasPosition = this.canvasPosition,
             lastXPosition = (-this.canvas.width * (this.imageCount - 1)),
             lastYPosition = (-this.canvas.height * (this.imageCount - 1));
 
         this.coors.x = ev.clientX - bbox.left;
         this.coors.y = ev.clientY - bbox.top;
 
-        canvanPosition.deltaX = (this.coors.x - this.coors.mouseX);
-        canvanPosition.deltaY = (this.coors.y - this.coors.mouseY);
+        canvasPosition.deltaX = (this.coors.x - this.coors.mouseX);
+        canvasPosition.deltaY = (this.coors.y - this.coors.mouseY);
 
-        console.log('current', canvanPosition.deltaX);
+        console.log('current', canvasPosition.deltaX);
 
         switch (this.direction) {
             case 'horizontal':
-                if (canvanPosition.deltaX > 0) {
-                    canvanPosition.deltaX = 0;
-                } else if (canvanPosition.deltaX < lastXPosition ) {
-                    canvanPosition.deltaX = lastXPosition;
+                if (canvasPosition.deltaX > 0) {
+                    canvasPosition.deltaX = 0;
+                } else if (canvasPosition.deltaX < lastXPosition ) {
+                    canvasPosition.deltaX = lastXPosition;
                 }
                 break;
 
             case 'vertical':
             default:
-                if (canvanPosition.deltaY > 0) {
-                    canvanPosition.deltaY = 0;
-                } else if (canvanPosition.deltaY < lastYPosition) {
-                    canvanPosition.deltaY = lastYPosition;
+                if (canvasPosition.deltaY > 0) {
+                    canvasPosition.deltaY = 0;
+                } else if (canvasPosition.deltaY < lastYPosition) {
+                    canvasPosition.deltaY = lastYPosition;
                 }
                 break;
         }
