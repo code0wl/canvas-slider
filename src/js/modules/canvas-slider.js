@@ -14,19 +14,16 @@ class CanvasSlider {
         this.handleInteraction = this.handleInteraction.bind(this);
         this.setCoors = this.setCoors.bind(this);
         this.interactionsMap = {
-            hybrid: () => this.canvas.addEventListener('selectstart', (e) => { e.preventDefault()}),
-            touch: {
+            listeners: {
                 on: () => {
-                    this.canvas.addEventListener('touchstart', this.handleInteraction);
-                }
-            },
-            mouse: {
-                on: () => {
-                    this.canvas.addEventListener('mouseleave', this.handleInteraction);
-                    this.canvas.addEventListener('mouseup', this.handleInteraction);
-                    this.canvas.addEventListener('mousedown', this.handleInteraction);
+                    if (this.touch) {
+                        this.canvas.addEventListener('touchstart', this.handleInteraction);
+                    } else {
+                        this.canvas.addEventListener('mouseleave', this.handleInteraction);
+                        this.canvas.addEventListener('mouseup', this.handleInteraction);
+                        this.canvas.addEventListener('mousedown', this.handleInteraction);
+                    }
                 },
-
                 off: () => {
                     this.canvas.removeEventListener('mouseleave', this.handleInteraction);
                     this.canvas.removeEventListener('mouseup', this.handleInteraction);
@@ -45,7 +42,6 @@ class CanvasSlider {
         this.setDirection(options.direction);
         this.fetchData(options.data);
         this.setDimensions(options.dimensions);
-        this.interactionsMap.hybrid();
     }
 
     /**
@@ -55,6 +51,9 @@ class CanvasSlider {
     setCanvas(element) {
         this.canvas = document.querySelector(element);
         this.context = this.canvas.getContext('2d');
+        this.canvas.addEventListener('selectstart', (e) => {
+            e.preventDefault()
+        });
     }
 
     /**
@@ -92,33 +91,38 @@ class CanvasSlider {
      * @param {object} images
      */
     drawImages(images) {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const
+            cW = this.canvas.width,
+            cH = this.canvas.height;
+
+        this.context.clearRect(0, 0, cW, cH);
         images.forEach((image, index)=> {
             let
-                offsetLeft = this.canvas.width * index,
-                offsetTop = this.canvas.height * index,
+                offsetLeft = cW * index,
+                offsetTop = cH * index,
+                ctx = this.context,
                 imgWidth = image.width,
                 imgHeight = image.height,
 
-                HorizontalAspectRatio = this.canvas.width / imgWidth,
-                verticalAspectRatio =  this.canvas.height / imgHeight,
+                HorizontalAspectRatio = cW / imgWidth,
+                verticalAspectRatio = cH / imgHeight,
 
                 aspectRatio = Math.min ( HorizontalAspectRatio, verticalAspectRatio ),
 
-                middleX = ( this.canvas.width - imgWidth * aspectRatio ) / 2,
-                middleY = ( this.canvas.height - imgHeight * aspectRatio ) / 2;
+                middleX = ( cW - imgWidth * aspectRatio ) / 2,
+                middleY = ( cH - imgHeight * aspectRatio ) / 2;
 
             if (this.direction === 'horizontal') {
-                if ( this.canvas.width > imgWidth ) {
-                    this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2 + this.canvasPosition.deltaX, this.canvas.height / 2 - imgHeight / 2, imgWidth, imgHeight);
+                if (cW > imgWidth) {
+                    ctx.drawImage(image, cW / 2 - imgWidth / 2 + this.canvasPosition.deltaX, cH / 2 - imgHeight / 2, imgWidth, imgHeight);
                 } else {
-                    this.context.drawImage(image, middleX + (offsetLeft + this.canvasPosition.deltaX), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
+                    ctx.drawImage(image, middleX + (offsetLeft + this.canvasPosition.deltaX), middleY, imgWidth * aspectRatio, imgHeight * aspectRatio);
                 }
             } else {
-                if ( this.canvas.width > imgWidth ) {
-                    this.context.drawImage(image, this.canvas.width / 2 - imgWidth / 2, this.canvas.height / 2 - imgHeight / 2 + this.canvasPosition.deltaY, imgWidth, imgHeight);
+                if (cW > imgWidth) {
+                    ctx.drawImage(image, cW / 2 - imgWidth / 2, cH / 2 - imgHeight / 2 + this.canvasPosition.deltaY, imgWidth, imgHeight);
                 } else {
-                    this.context.drawImage(image, middleX, middleY + (offsetTop + this.canvasPosition.deltaY), imgWidth * aspectRatio, imgHeight * aspectRatio);
+                    ctx.drawImage(image, middleX, middleY + (offsetTop + this.canvasPosition.deltaY), imgWidth * aspectRatio, imgHeight * aspectRatio);
                 }
             }
 
@@ -144,8 +148,7 @@ class CanvasSlider {
      * adds drag interactions for both touch and mouse
      */
     addInteractions() {
-        this.interactionsMap.touch.on();
-        this.interactionsMap.mouse.on();
+        this.interactionsMap.listeners.on();
     }
 
     /**
@@ -153,7 +156,7 @@ class CanvasSlider {
      * Touch is always listening
      */
     removeInteractions() {
-        this.interactionsMap.mouse.off();
+        this.interactionsMap.listeners.off();
     }
 
     /**
@@ -183,17 +186,17 @@ class CanvasSlider {
     setCoors(ev) {
         let
             bbox = this.canvas.getBoundingClientRect(),
+            eventObject = this.touch ? ev.touches[0] : ev,
             canvasPosition = this.canvasPosition,
             lastXPosition = (-this.canvas.width * (this.imageCount - 1)),
-            lastYPosition = (-this.canvas.height * (this.imageCount - 1));
+            lastYPosition = (-this.canvas.height * (this.imageCount - 1)),
+            coors = this.coors;
 
-        this.coors.x = ev.clientX - bbox.left;
-        this.coors.y = ev.clientY - bbox.top;
+        coors.x = eventObject.clientX - bbox.left;
+        coors.y = eventObject.clientY - bbox.top;
 
-        canvasPosition.deltaX = (this.coors.x - this.coors.mouseX);
-        canvasPosition.deltaY = (this.coors.y - this.coors.mouseY);
-
-        console.log('current', canvasPosition.deltaX);
+        canvasPosition.deltaX = (coors.x - coors.clientX);
+        canvasPosition.deltaY = (coors.y - coors.clientY);
 
         switch (this.direction) {
             case 'horizontal':
@@ -203,7 +206,6 @@ class CanvasSlider {
                     canvasPosition.deltaX = lastXPosition;
                 }
                 break;
-
             case 'vertical':
             default:
                 if (canvasPosition.deltaY > 0) {
@@ -223,12 +225,16 @@ class CanvasSlider {
     handleInteraction(ev) {
         let
             eT = ev.type,
-            canvas = this.canvas,
+            coors = this.coors,
+            eventObject = this.touch ? ev.touches[0] : ev,
+            canvas = this.canvas, canvasPosition = this.canvasPosition,
             bbox = canvas.getBoundingClientRect();
 
         if (eT === 'mousedown' || eT === 'touchstart') {
-            this.coors.mouseX = (ev.clientX - bbox.left) - this.canvasPosition.deltaX;
-            this.coors.mouseY = (ev.clientY - bbox.top) - this.canvasPosition.deltaY;
+
+            coors.clientX = (eventObject.clientX - bbox.left) - canvasPosition.deltaX;
+            coors.clientY = (eventObject.clientY - bbox.top) - canvasPosition.deltaY;
+
             canvas.addEventListener('touchmove', this.setCoors);
             canvas.addEventListener('mousemove', this.setCoors);
         } else {
@@ -246,7 +252,6 @@ class CanvasSlider {
             case 'vertical':
                 this.direction = direction !== undefined ? direction: 'vertical';
                 break;
-
             case 'horizontal':
             default:
                 this.direction = direction;
