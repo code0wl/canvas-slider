@@ -13,12 +13,12 @@ Use when speed is absolutely a necessity! Also works on mobile.
 - vertical scroll
 - map events to canvas coordinates
 - linting
+- Mobile (optimised for touch support)
 - !deadzone scrolling
 - no libs, clean ES2015 (w/babel)
 
 ###Feature pipeline
-- Mobile
-- import image
+- import image by dragging and dropping in the strip
 - select image to modify
 - add effects to image
 - crop image
