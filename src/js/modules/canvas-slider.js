@@ -144,17 +144,10 @@ class CanvasSlider {
         }
     }
 
-    /**
-     * adds drag interactions for both touch and mouse
-     */
     addInteractions() {
         this.interactionsMap.listeners.on();
     }
 
-    /**
-     * Removes drag interactions for only the mouse
-     * Touch is always listening
-     */
     removeInteractions() {
         this.interactionsMap.listeners.off();
     }

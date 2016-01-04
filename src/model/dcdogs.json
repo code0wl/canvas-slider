@@ -1,30 +1,26 @@
 {
-
   "image1": {
     "name": "joker dog",
-    "url": "http://placecreature.com/200/150",
-    "width": "200",
-    "height": "150"
-  },
-
-  "image2": {
-    "name": "Robin dog",
-    "url": "http://placecreature.com/800/1200",
-    "width": "800",
+    "url": "http://dreamatico.com/data_images/car/car-8.jpg",
+    "width": "1900",
     "height": "1200"
   },
-
-  "image3": {
-    "name": "laughing pooch",
-    "url": "http://placecreature.com/1024/768",
-    "width": "1024",
-    "height": "768"
+  "image2": {
+    "name": "joker dog",
+    "url": "http://dreamatico.com/data_images/car/car-8.jpg",
+    "width": "1900",
+    "height": "1200"
   },
-
+  "image3": {
+    "name": "joker dog",
+    "url": "http://dreamatico.com/data_images/car/car-8.jpg",
+    "width": "1900",
+    "height": "1200"
+  },
   "image4": {
-    "name": "batdog",
-    "url": "http://placecreature.com/700/300",
-    "width": "700",
-    "height": "300"
+    "name": "joker dog",
+    "url": "http://dreamatico.com/data_images/car/car-8.jpg",
+    "width": "1900",
+    "height": "1200"
   }
 }
