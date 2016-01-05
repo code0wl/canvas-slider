@@ -31,7 +31,9 @@ gulp.task('serve', ['js', 'css', 'data' ,'dist'], function () {
 gulp.task('js', () => {
     return gulp.src('src/**/*.js')
         .pipe(sourcemaps.init())
-        .pipe(babel())
+        .pipe(babel({
+            presets: ['es2015']
+        }))
         .pipe(uglify())
         .pipe(concat('canvas.min.js'))
         .pipe(sourcemaps.write('.'))
